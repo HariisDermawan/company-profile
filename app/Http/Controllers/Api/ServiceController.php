@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Service\StoreServiceRequest;
 use App\Http\Resources\ServiceResource;
 use App\Models\Service;
 use Illuminate\Http\JsonResponse;
@@ -25,18 +26,10 @@ class ServiceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreServiceRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'icon' => ['nullable', 'string', 'max:255'],
-            'is_active' => ['sometimes', 'boolean'],
-        ]);
 
-        $service = Service::create($validated);
-
+        $service = Service::create($request->validated());
         return response()->json([
             'message' => 'Service created successfully',
             'data' => new ServiceResource($service),
@@ -50,22 +43,29 @@ class ServiceController extends Controller
     {
         return response()->json([
             'data' => new ServiceResource($service),
-        ]);
+        ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(StoreServiceRequest $request, Service $service): JsonResponse
     {
-        //
+        $service->update($request->validated());
+        return response()->json([
+            'message' => 'Service updated successfuly',
+            'data' => new ServiceResource($service),
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Service $service)
     {
-        //
+        $service->delete();
+        return response()->json([
+            'message' => 'Service Deleted successfuly!'
+        ]);
     }
 }
