@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ServiceController;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
@@ -15,4 +16,5 @@ Route::prefix('auth')->middleware(StartSession::class)->group(function () {
 
 Route::middleware(['auth:sanctum', StartSession::class,])->group( function () {
         Route::apiResource('services', ServiceController::class);
+        Route::apiResource('projects', ProjectController::class);
     });
