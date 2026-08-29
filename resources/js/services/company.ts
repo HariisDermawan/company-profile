@@ -47,7 +47,9 @@ export const getCompanyProfiles = async (): Promise<CompanyProfile[]> => {
     return response.data.data;
 };
 
-export const getCompanyProfile = async (id: number): Promise<CompanyProfile> => {
+export const getCompanyProfile = async (
+    id: number,
+): Promise<CompanyProfile> => {
     const response = await api.get<{ data: CompanyProfile }>(
         `/api/admin/company/${id}`,
     );
@@ -61,7 +63,10 @@ export const createCompanyProfile = async (payload: CompanyProfilePayload) => {
     formData.append('name', payload.name);
 
     appendOptionalStrings(formData, payload);
-    if (payload.logo) formData.append('logo', payload.logo);
+
+    if (payload.logo) {
+        formData.append('logo', payload.logo);
+    }
 
     formData.append('is_active', payload.is_active ? '1' : '0');
 
@@ -79,7 +84,10 @@ export const updateCompanyProfile = async (
     formData.append('name', payload.name);
 
     appendOptionalStrings(formData, payload);
-    if (payload.logo) formData.append('logo', payload.logo);
+
+    if (payload.logo) {
+        formData.append('logo', payload.logo);
+    }
 
     formData.append('is_active', payload.is_active ? '1' : '0');
     formData.append('_method', 'PUT');

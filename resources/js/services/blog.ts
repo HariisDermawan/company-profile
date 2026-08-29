@@ -49,13 +49,33 @@ export const createBlogPost = async (payload: BlogPostPayload) => {
     formData.append('title', payload.title);
     formData.append('content', payload.content);
 
-    if (payload.slug) formData.append('slug', payload.slug);
-    if (payload.excerpt) formData.append('excerpt', payload.excerpt);
-    if (payload.cover_image) formData.append('cover_image', payload.cover_image);
-    if (payload.category) formData.append('category', payload.category);
-    if (payload.author) formData.append('author', payload.author);
-    if (payload.published_at) formData.append('published_at', payload.published_at);
-    if (payload.tags?.length) formData.append('tags', JSON.stringify(payload.tags));
+    if (payload.slug) {
+        formData.append('slug', payload.slug);
+    }
+
+    if (payload.excerpt) {
+        formData.append('excerpt', payload.excerpt);
+    }
+
+    if (payload.cover_image) {
+        formData.append('cover_image', payload.cover_image);
+    }
+
+    if (payload.category) {
+        formData.append('category', payload.category);
+    }
+
+    if (payload.author) {
+        formData.append('author', payload.author);
+    }
+
+    if (payload.published_at) {
+        formData.append('published_at', payload.published_at);
+    }
+
+    if (payload.tags?.length) {
+        formData.append('tags', JSON.stringify(payload.tags));
+    }
 
     formData.append('is_active', payload.is_active ? '1' : '0');
 
@@ -70,13 +90,33 @@ export const updateBlogPost = async (id: number, payload: BlogPostPayload) => {
     formData.append('title', payload.title);
     formData.append('content', payload.content);
 
-    if (payload.slug) formData.append('slug', payload.slug);
-    if (payload.excerpt) formData.append('excerpt', payload.excerpt);
-    if (payload.cover_image) formData.append('cover_image', payload.cover_image);
-    if (payload.category) formData.append('category', payload.category);
-    if (payload.author) formData.append('author', payload.author);
-    if (payload.published_at) formData.append('published_at', payload.published_at);
-    if (payload.tags?.length) formData.append('tags', JSON.stringify(payload.tags));
+    if (payload.slug) {
+        formData.append('slug', payload.slug);
+    }
+
+    if (payload.excerpt) {
+        formData.append('excerpt', payload.excerpt);
+    }
+
+    if (payload.cover_image) {
+        formData.append('cover_image', payload.cover_image);
+    }
+
+    if (payload.category) {
+        formData.append('category', payload.category);
+    }
+
+    if (payload.author) {
+        formData.append('author', payload.author);
+    }
+
+    if (payload.published_at) {
+        formData.append('published_at', payload.published_at);
+    }
+
+    if (payload.tags?.length) {
+        formData.append('tags', JSON.stringify(payload.tags));
+    }
 
     formData.append('is_active', payload.is_active ? '1' : '0');
     formData.append('_method', 'PUT');

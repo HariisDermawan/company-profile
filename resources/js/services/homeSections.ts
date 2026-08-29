@@ -45,6 +45,7 @@ export const createHomeSection = async (payload: HomeSectionPayload) => {
     formData.append('section_key', payload.section_key);
 
     appendOptionalStrings(formData, payload);
+
     if (payload.data && Object.keys(payload.data).length > 0) {
         formData.append('data', JSON.stringify(payload.data));
     }
@@ -65,6 +66,7 @@ export const updateHomeSection = async (
     formData.append('section_key', payload.section_key);
 
     appendOptionalStrings(formData, payload);
+
     if (payload.data && Object.keys(payload.data).length > 0) {
         formData.append('data', JSON.stringify(payload.data));
     }

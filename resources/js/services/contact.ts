@@ -30,7 +30,9 @@ export const getMessage = async (id: number): Promise<ContactMessage> => {
 };
 
 export const markMessageAsRead = async (id: number, isRead: boolean) => {
-    const response = await api.patch(`/api/admin/contact/${id}`, { is_read: isRead });
+    const response = await api.patch(`/api/admin/contact/${id}`, {
+        is_read: isRead,
+    });
 
     return response.data;
 };

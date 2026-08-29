@@ -40,13 +40,10 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-
+        <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
+            <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
                 <div className="mb-8 text-center">
-                    <h1 className="text-3xl font-bold text-gray-900">
-                        Login
-                    </h1>
+                    <h1 className="text-3xl font-bold text-gray-900">Login</h1>
 
                     <p className="mt-2 text-sm text-gray-500">
                         Silahkan masuk ke akun anda
@@ -55,14 +52,13 @@ export default function Login() {
 
                 {/* Error */}
                 {error && (
-                    <div className="mb-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
+                    <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
                         {error}
                     </div>
                 )}
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-5">
-
                     {/* Email */}
                     <div>
                         <label
@@ -78,7 +74,7 @@ export default function Login() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Masukan Email"
-                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-200"
+                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-200"
                         />
                     </div>
 
@@ -97,7 +93,7 @@ export default function Login() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Masukan password"
-                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-200"
+                            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-200"
                         />
                     </div>
 
@@ -109,7 +105,6 @@ export default function Login() {
                     >
                         {loading ? 'Logging in...' : 'Login'}
                     </button>
-
                 </form>
             </div>
         </div>

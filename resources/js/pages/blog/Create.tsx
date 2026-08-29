@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
 import { Link } from '@inertiajs/react';
+import { useRef, useState } from 'react';
 
 import AdminLayout from '@/components/AdminLayout';
 import { createBlogPost } from '@/services/blog';
@@ -74,8 +74,18 @@ export default function Create() {
             <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
                 {error && (
                     <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm text-red-600">
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <svg
+                            className="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
                         </svg>
                         {error}
                     </div>
@@ -90,10 +100,24 @@ export default function Create() {
                         <div className="flex items-center gap-4">
                             <div className="flex h-24 w-36 items-center justify-center overflow-hidden rounded-xl bg-violet-50">
                                 {coverPreview ? (
-                                    <img src={coverPreview} alt="Preview" className="h-full w-full object-cover" />
+                                    <img
+                                        src={coverPreview}
+                                        alt="Preview"
+                                        className="h-full w-full object-cover"
+                                    />
                                 ) : (
-                                    <svg className="h-8 w-8 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    <svg
+                                        className="h-8 w-8 text-violet-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                        />
                                     </svg>
                                 )}
                             </div>
@@ -128,7 +152,10 @@ export default function Create() {
 
                     {/* Title */}
                     <div>
-                        <label htmlFor="title" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="title"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                             Judul
                         </label>
                         <input
@@ -137,14 +164,17 @@ export default function Create() {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Contoh: Tips Membangun Website Perusahaan"
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                             required
                         />
                     </div>
 
                     {/* Slug */}
                     <div>
-                        <label htmlFor="slug" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="slug"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                             Slug
                         </label>
                         <input
@@ -153,14 +183,17 @@ export default function Create() {
                             value={slug}
                             onChange={(e) => setSlug(e.target.value)}
                             placeholder="Kosongkan untuk generate otomatis dari judul"
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                         />
                     </div>
 
                     {/* Category & Author */}
                     <div className="grid gap-6 sm:grid-cols-2">
                         <div>
-                            <label htmlFor="category" className="mb-2 block text-sm font-medium text-gray-700">
+                            <label
+                                htmlFor="category"
+                                className="mb-2 block text-sm font-medium text-gray-700"
+                            >
                                 Category
                             </label>
                             <input
@@ -169,11 +202,14 @@ export default function Create() {
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
                                 placeholder="Contoh: Tips"
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                             />
                         </div>
                         <div>
-                            <label htmlFor="author" className="mb-2 block text-sm font-medium text-gray-700">
+                            <label
+                                htmlFor="author"
+                                className="mb-2 block text-sm font-medium text-gray-700"
+                            >
                                 Author
                             </label>
                             <input
@@ -182,14 +218,17 @@ export default function Create() {
                                 value={author}
                                 onChange={(e) => setAuthor(e.target.value)}
                                 placeholder="Contoh: Admin"
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                             />
                         </div>
                     </div>
 
                     {/* Tags */}
                     <div>
-                        <label htmlFor="tags" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="tags"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                             Tags
                         </label>
                         <input
@@ -198,13 +237,16 @@ export default function Create() {
                             value={tags}
                             onChange={(e) => setTags(e.target.value)}
                             placeholder="Pisahkan dengan koma, contoh: web, tips, bisnis"
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                         />
                     </div>
 
                     {/* Published At */}
                     <div>
-                        <label htmlFor="published_at" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="published_at"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                             Published At
                         </label>
                         <input
@@ -212,13 +254,16 @@ export default function Create() {
                             type="datetime-local"
                             value={publishedAt}
                             onChange={(e) => setPublishedAt(e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                         />
                     </div>
 
                     {/* Excerpt */}
                     <div>
-                        <label htmlFor="excerpt" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="excerpt"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                             Excerpt
                         </label>
                         <textarea
@@ -227,13 +272,16 @@ export default function Create() {
                             onChange={(e) => setExcerpt(e.target.value)}
                             placeholder="Ringkasan singkat artikel..."
                             rows={3}
-                            className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                            className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                         />
                     </div>
 
                     {/* Content */}
                     <div>
-                        <label htmlFor="content" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="content"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                             Konten
                         </label>
                         <textarea
@@ -242,7 +290,7 @@ export default function Create() {
                             onChange={(e) => setContent(e.target.value)}
                             placeholder="Isi artikel..."
                             rows={10}
-                            className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                            className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                             required
                         />
                     </div>
@@ -256,7 +304,10 @@ export default function Create() {
                             onChange={(e) => setIsActive(e.target.checked)}
                             className="h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                         />
-                        <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="is_active"
+                            className="text-sm font-medium text-gray-700"
+                        >
                             Artikel aktif
                         </label>
                     </div>

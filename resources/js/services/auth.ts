@@ -1,4 +1,4 @@
-import api from "@/lib/axios";
+import api from '@/lib/axios';
 
 export interface LoginPayload {
     email: string;
@@ -10,6 +10,7 @@ export interface User {
     name: string;
     email: string;
     email_verified_at: string | null;
+    role?: string;
 }
 
 export interface LoginResponse {
@@ -21,15 +22,10 @@ export const getCsrfCookie = async (): Promise<void> => {
     await api.get('/sanctum/csrf-cookie');
 };
 
-export const login = async (
-    payload: LoginPayload
-): Promise<LoginResponse> => {
+export const login = async (payload: LoginPayload): Promise<LoginResponse> => {
     await getCsrfCookie();
 
-    const response = await api.post<LoginResponse>(
-        '/api/auth/login',
-        payload
-    );
+    const response = await api.post<LoginResponse>('/api/auth/login', payload);
 
     return response.data;
 };

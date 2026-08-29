@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
 import { Link } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 
 import AdminLayout from '@/components/AdminLayout';
 import { fileUrl } from '@/lib/utils';
@@ -95,7 +95,9 @@ export default function Edit({ id }: { id: number }) {
                 <div className="rounded-2xl border border-gray-100 bg-white p-16 text-center shadow-sm">
                     <div className="flex flex-col items-center gap-4">
                         <div className="h-12 w-12 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
-                        <p className="text-sm text-gray-500 font-medium">Loading member...</p>
+                        <p className="text-sm font-medium text-gray-500">
+                            Loading member...
+                        </p>
                     </div>
                 </div>
             </AdminLayout>
@@ -107,8 +109,18 @@ export default function Edit({ id }: { id: number }) {
             <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
                 {error && (
                     <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm text-red-600">
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <svg
+                            className="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
                         </svg>
                         {error}
                     </div>
@@ -123,10 +135,24 @@ export default function Edit({ id }: { id: number }) {
                         <div className="flex items-center gap-4">
                             <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-violet-50">
                                 {photoPreview ? (
-                                    <img src={photoPreview} alt="Preview" className="h-full w-full object-cover" />
+                                    <img
+                                        src={photoPreview}
+                                        alt="Preview"
+                                        className="h-full w-full object-cover"
+                                    />
                                 ) : (
-                                    <svg className="h-8 w-8 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    <svg
+                                        className="h-8 w-8 text-violet-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                        />
                                     </svg>
                                 )}
                             </div>
@@ -161,7 +187,10 @@ export default function Edit({ id }: { id: number }) {
 
                     {/* Name */}
                     <div>
-                        <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="name"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                             Nama Lengkap
                         </label>
                         <input
@@ -169,14 +198,17 @@ export default function Edit({ id }: { id: number }) {
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                             required
                         />
                     </div>
 
                     {/* Position */}
                     <div>
-                        <label htmlFor="position" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="position"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                             Posisi
                         </label>
                         <input
@@ -184,14 +216,17 @@ export default function Edit({ id }: { id: number }) {
                             type="text"
                             value={position}
                             onChange={(e) => setPosition(e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                             required
                         />
                     </div>
 
                     {/* Bio */}
                     <div>
-                        <label htmlFor="bio" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="bio"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                             Bio
                         </label>
                         <textarea
@@ -199,13 +234,16 @@ export default function Edit({ id }: { id: number }) {
                             value={bio}
                             onChange={(e) => setBio(e.target.value)}
                             rows={4}
-                            className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                            className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                         />
                     </div>
 
                     {/* Email */}
                     <div>
-                        <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="email"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                             Email
                         </label>
                         <input
@@ -213,14 +251,17 @@ export default function Edit({ id }: { id: number }) {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                         />
                     </div>
 
                     {/* Socials */}
                     <div className="grid gap-6 sm:grid-cols-2">
                         <div>
-                            <label htmlFor="linkedin_url" className="mb-2 block text-sm font-medium text-gray-700">
+                            <label
+                                htmlFor="linkedin_url"
+                                className="mb-2 block text-sm font-medium text-gray-700"
+                            >
                                 LinkedIn URL
                             </label>
                             <input
@@ -228,11 +269,14 @@ export default function Edit({ id }: { id: number }) {
                                 type="url"
                                 value={linkedinUrl}
                                 onChange={(e) => setLinkedinUrl(e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                             />
                         </div>
                         <div>
-                            <label htmlFor="twitter_url" className="mb-2 block text-sm font-medium text-gray-700">
+                            <label
+                                htmlFor="twitter_url"
+                                className="mb-2 block text-sm font-medium text-gray-700"
+                            >
                                 Twitter URL
                             </label>
                             <input
@@ -240,14 +284,17 @@ export default function Edit({ id }: { id: number }) {
                                 type="url"
                                 value={twitterUrl}
                                 onChange={(e) => setTwitterUrl(e.target.value)}
-                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                             />
                         </div>
                     </div>
 
                     {/* Order */}
                     <div>
-                        <label htmlFor="order" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="order"
+                            className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                             Order
                         </label>
                         <input
@@ -256,7 +303,7 @@ export default function Edit({ id }: { id: number }) {
                             min={0}
                             value={order}
                             onChange={(e) => setOrder(Number(e.target.value))}
-                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-200"
                         />
                     </div>
 
@@ -269,7 +316,10 @@ export default function Edit({ id }: { id: number }) {
                             onChange={(e) => setIsActive(e.target.checked)}
                             className="h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                         />
-                        <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
+                        <label
+                            htmlFor="is_active"
+                            className="text-sm font-medium text-gray-700"
+                        >
                             Anggota aktif
                         </label>
                     </div>

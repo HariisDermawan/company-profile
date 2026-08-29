@@ -1,29 +1,28 @@
-import api from "@/lib/axios";
-
+import api from '@/lib/axios';
 
 export interface Project {
-    id: number,
-    title: string,
-    slug: string,
-    description: string | null,
-    image: string | null,
-    category: string | null,
-    client: string | null,
-    project_url: string,
-    is_featured: boolean,
-    is_active: boolean,
+    id: number;
+    title: string;
+    slug: string;
+    description: string | null;
+    image: string | null;
+    category: string | null;
+    client: string | null;
+    project_url: string;
+    is_featured: boolean;
+    is_active: boolean;
 }
 
 export interface ProjectPayload {
-    title: string,
-    slug?: string,
-    description?: string,
-    image?: File | null,
-    category?: string,
-    client?: string,
-    project_url?: string,
-    is_featured?: boolean,
-    is_active?: boolean
+    title: string;
+    slug?: string;
+    description?: string;
+    image?: File | null;
+    category?: string;
+    client?: string;
+    project_url?: string;
+    is_featured?: boolean;
+    is_active?: boolean;
 }
 
 export interface ProjectResponse {
@@ -31,16 +30,12 @@ export interface ProjectResponse {
 }
 
 export const getProjects = async (): Promise<Project[]> => {
-    const response = await api.get<ProjectResponse>(
-        'api/admin/projects',
-    );
+    const response = await api.get<ProjectResponse>('/api/admin/projects');
 
     return response.data.data;
-}
+};
 
-export const getProject = async (
-    id: number,
-): Promise<Project> => {
+export const getProject = async (id: number): Promise<Project> => {
     const response = await api.get<{ data: Project }>(
         `/api/admin/projects/${id}`,
     );
@@ -48,9 +43,7 @@ export const getProject = async (
     return response.data.data;
 };
 
-export const createProject = async (
-    payload: ProjectPayload,
-) => {
+export const createProject = async (payload: ProjectPayload) => {
     const formData = new FormData();
 
     formData.append('title', payload.title);
@@ -79,28 +72,16 @@ export const createProject = async (
         formData.append('project_url', payload.project_url);
     }
 
-    formData.append(
-        'is_featured',
-        payload.is_featured ? '1' : '0',
-    );
+    formData.append('is_featured', payload.is_featured ? '1' : '0');
 
-    formData.append(
-        'is_active',
-        payload.is_active ? '1' : '0',
-    );
+    formData.append('is_active', payload.is_active ? '1' : '0');
 
-    const response = await api.post(
-        '/api/admin/projects',
-        formData,
-    );
+    const response = await api.post('/api/admin/projects', formData);
 
     return response.data;
 };
 
-export const updateProject = async (
-    id: number,
-    payload: ProjectPayload,
-) => {
+export const updateProject = async (id: number, payload: ProjectPayload) => {
     const formData = new FormData();
 
     formData.append('title', payload.title);
@@ -129,31 +110,18 @@ export const updateProject = async (
         formData.append('project_url', payload.project_url);
     }
 
-    formData.append(
-        'is_featured',
-        payload.is_featured ? '1' : '0',
-    );
+    formData.append('is_featured', payload.is_featured ? '1' : '0');
 
-    formData.append(
-        'is_active',
-        payload.is_active ? '1' : '0',
-    );
+    formData.append('is_active', payload.is_active ? '1' : '0');
     formData.append('_method', 'PUT');
 
-    const response = await api.post(
-        `/api/admin/projects/${id}`,
-        formData,
-    );
+    const response = await api.post(`/api/admin/projects/${id}`, formData);
 
     return response.data;
 };
 
-export const deleteProject = async (
-    id: number,
-) => {
-    const response = await api.delete(
-        `/api/admin/projects/${id}`,
-    );
+export const deleteProject = async (id: number) => {
+    const response = await api.delete(`/api/admin/projects/${id}`);
 
     return response.data;
 };

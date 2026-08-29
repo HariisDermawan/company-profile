@@ -28,7 +28,9 @@ export const getClients = async (): Promise<Client[]> => {
 };
 
 export const getClient = async (id: number): Promise<Client> => {
-    const response = await api.get<{ data: Client }>(`/api/admin/clients/${id}`);
+    const response = await api.get<{ data: Client }>(
+        `/api/admin/clients/${id}`,
+    );
 
     return response.data.data;
 };
@@ -38,8 +40,13 @@ export const createClient = async (payload: ClientPayload) => {
 
     formData.append('name', payload.name);
 
-    if (payload.logo) formData.append('logo', payload.logo);
-    if (payload.website_url) formData.append('website_url', payload.website_url);
+    if (payload.logo) {
+        formData.append('logo', payload.logo);
+    }
+
+    if (payload.website_url) {
+        formData.append('website_url', payload.website_url);
+    }
 
     formData.append('order', String(payload.order ?? 0));
     formData.append('is_active', payload.is_active ? '1' : '0');
@@ -54,8 +61,13 @@ export const updateClient = async (id: number, payload: ClientPayload) => {
 
     formData.append('name', payload.name);
 
-    if (payload.logo) formData.append('logo', payload.logo);
-    if (payload.website_url) formData.append('website_url', payload.website_url);
+    if (payload.logo) {
+        formData.append('logo', payload.logo);
+    }
+
+    if (payload.website_url) {
+        formData.append('website_url', payload.website_url);
+    }
 
     formData.append('order', String(payload.order ?? 0));
     formData.append('is_active', payload.is_active ? '1' : '0');

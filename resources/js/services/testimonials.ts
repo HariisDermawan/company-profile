@@ -45,9 +45,17 @@ export const createTestimonial = async (payload: TestimonialPayload) => {
     formData.append('name', payload.name);
     formData.append('content', payload.content);
 
-    if (payload.photo) formData.append('photo', payload.photo);
-    if (payload.company) formData.append('company', payload.company);
-    if (payload.position) formData.append('position', payload.position);
+    if (payload.photo) {
+        formData.append('photo', payload.photo);
+    }
+
+    if (payload.company) {
+        formData.append('company', payload.company);
+    }
+
+    if (payload.position) {
+        formData.append('position', payload.position);
+    }
 
     formData.append('rating', String(payload.rating ?? 5));
     formData.append('is_active', payload.is_active ? '1' : '0');
@@ -66,9 +74,17 @@ export const updateTestimonial = async (
     formData.append('name', payload.name);
     formData.append('content', payload.content);
 
-    if (payload.photo) formData.append('photo', payload.photo);
-    if (payload.company) formData.append('company', payload.company);
-    if (payload.position) formData.append('position', payload.position);
+    if (payload.photo) {
+        formData.append('photo', payload.photo);
+    }
+
+    if (payload.company) {
+        formData.append('company', payload.company);
+    }
+
+    if (payload.position) {
+        formData.append('position', payload.position);
+    }
 
     formData.append('rating', String(payload.rating ?? 5));
     formData.append('is_active', payload.is_active ? '1' : '0');

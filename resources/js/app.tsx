@@ -12,7 +12,9 @@ createInertiaApp({
 
     setup({ el, App, props }) {
         if (!el) {
-            throw new Error('Root element not found. Make sure there is a <div id="app"></div> in your Blade layout.');
+            throw new Error(
+                'Root element not found. Make sure there is a <div id="app"></div> in your Blade layout.',
+            );
         }
 
         const root = createRoot(el);

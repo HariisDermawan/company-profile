@@ -20,7 +20,8 @@ class ServiceResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'icon' => $this->icon,
-            'is_active' => $this->is_active, 
+            'is_active' => $this->is_active,
+            'created_at' => $this->created_at?->toISOString(),
         ];
     }
 }

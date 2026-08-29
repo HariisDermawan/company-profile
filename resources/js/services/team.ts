@@ -49,11 +49,25 @@ export const createTeamMember = async (payload: TeamMemberPayload) => {
     formData.append('name', payload.name);
     formData.append('position', payload.position);
 
-    if (payload.photo) formData.append('photo', payload.photo);
-    if (payload.bio) formData.append('bio', payload.bio);
-    if (payload.email) formData.append('email', payload.email);
-    if (payload.linkedin_url) formData.append('linkedin_url', payload.linkedin_url);
-    if (payload.twitter_url) formData.append('twitter_url', payload.twitter_url);
+    if (payload.photo) {
+        formData.append('photo', payload.photo);
+    }
+
+    if (payload.bio) {
+        formData.append('bio', payload.bio);
+    }
+
+    if (payload.email) {
+        formData.append('email', payload.email);
+    }
+
+    if (payload.linkedin_url) {
+        formData.append('linkedin_url', payload.linkedin_url);
+    }
+
+    if (payload.twitter_url) {
+        formData.append('twitter_url', payload.twitter_url);
+    }
 
     formData.append('order', String(payload.order ?? 0));
     formData.append('is_active', payload.is_active ? '1' : '0');
@@ -72,11 +86,25 @@ export const updateTeamMember = async (
     formData.append('name', payload.name);
     formData.append('position', payload.position);
 
-    if (payload.photo) formData.append('photo', payload.photo);
-    if (payload.bio) formData.append('bio', payload.bio);
-    if (payload.email) formData.append('email', payload.email);
-    if (payload.linkedin_url) formData.append('linkedin_url', payload.linkedin_url);
-    if (payload.twitter_url) formData.append('twitter_url', payload.twitter_url);
+    if (payload.photo) {
+        formData.append('photo', payload.photo);
+    }
+
+    if (payload.bio) {
+        formData.append('bio', payload.bio);
+    }
+
+    if (payload.email) {
+        formData.append('email', payload.email);
+    }
+
+    if (payload.linkedin_url) {
+        formData.append('linkedin_url', payload.linkedin_url);
+    }
+
+    if (payload.twitter_url) {
+        formData.append('twitter_url', payload.twitter_url);
+    }
 
     formData.append('order', String(payload.order ?? 0));
     formData.append('is_active', payload.is_active ? '1' : '0');

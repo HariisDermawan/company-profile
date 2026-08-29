@@ -1,13 +1,10 @@
-import { useEffect, useState } from 'react';
 import { Link } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 import AdminLayout from '@/components/AdminLayout';
 import { fileUrl } from '@/lib/utils';
-import {
-    deleteBlogPost,
-    getBlogPosts,
-    type BlogPost,
-} from '@/services/blog';
+import { deleteBlogPost, getBlogPosts } from '@/services/blog';
+import type { BlogPost } from '@/services/blog';
 
 export default function Index() {
     const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -17,28 +14,27 @@ export default function Index() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
 
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            setError('');
-
-            const data = await getBlogPosts();
-
-            setPosts(data);
-        } catch (error) {
-            console.error(error);
-            setError('Gagal mengambil data blog.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const data = await getBlogPosts();
+
+                setPosts(data);
+            } catch (error) {
+                console.error(error);
+                setError('Gagal mengambil data blog.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchData();
     }, []);
 
     const handleDelete = async () => {
-        if (!selectedPost) return;
+        if (!selectedPost) {
+            return;
+        }
 
         try {
             setDeletingId(selectedPost.id);
@@ -46,7 +42,9 @@ export default function Index() {
 
             await deleteBlogPost(selectedPost.id);
 
-            setPosts((current) => current.filter((post) => post.id !== selectedPost.id));
+            setPosts((current) =>
+                current.filter((post) => post.id !== selectedPost.id),
+            );
             setShowDeleteModal(false);
             setSelectedPost(null);
         } catch (error) {
@@ -75,19 +73,38 @@ export default function Index() {
                     <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
                         <div className="mb-4 flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
-                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                <svg
+                                    className="h-6 w-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900">Hapus Artikel</h3>
-                                <p className="text-sm text-gray-500">Apakah kamu yakin ingin menghapus artikel ini?</p>
+                                <h3 className="text-lg font-bold text-gray-900">
+                                    Hapus Artikel
+                                </h3>
+                                <p className="text-sm text-gray-500">
+                                    Apakah kamu yakin ingin menghapus artikel
+                                    ini?
+                                </p>
                             </div>
                         </div>
 
                         <div className="mb-6 rounded-xl bg-gray-50 p-4">
-                            <p className="text-sm font-medium text-gray-900">{selectedPost?.title}</p>
-                            <p className="text-xs text-gray-500">ID: {selectedPost?.id}</p>
+                            <p className="text-sm font-medium text-gray-900">
+                                {selectedPost?.title}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                                ID: {selectedPost?.id}
+                            </p>
                         </div>
 
                         <div className="flex justify-end gap-3">
@@ -104,7 +121,9 @@ export default function Index() {
                                 disabled={deletingId === selectedPost?.id}
                                 className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                {deletingId === selectedPost?.id ? 'Menghapus...' : 'Ya, Hapus'}
+                                {deletingId === selectedPost?.id
+                                    ? 'Menghapus...'
+                                    : 'Ya, Hapus'}
                             </button>
                         </div>
                     </div>
@@ -119,8 +138,18 @@ export default function Index() {
                     href="/blog/create"
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/30 transition-all hover:translate-y-[-0.125rem] hover:shadow-violet-600/40"
                 >
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                    <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 4v16m8-8H4"
+                        />
                     </svg>
                     Add Post
                 </Link>
@@ -129,8 +158,18 @@ export default function Index() {
             {/* Error */}
             {error && (
                 <div className="mb-6 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm text-red-600">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                     </svg>
                     {error}
                 </div>
@@ -141,27 +180,52 @@ export default function Index() {
                 <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center shadow-sm">
                     <div className="flex flex-col items-center gap-4">
                         <div className="h-12 w-12 animate-spin rounded-full border-4 border-violet-600 border-t-transparent"></div>
-                        <p className="text-sm font-medium text-gray-500">Loading blog...</p>
+                        <p className="text-sm font-medium text-gray-500">
+                            Loading blog...
+                        </p>
                     </div>
                 </div>
             ) : posts.length === 0 ? (
                 /* Empty State */
                 <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-white p-16 text-center shadow-sm">
                     <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
-                        <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        <svg
+                            className="h-10 w-10"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                            />
                         </svg>
                     </div>
-                    <h2 className="mt-5 text-xl font-bold text-gray-900">Belum ada artikel</h2>
+                    <h2 className="mt-5 text-xl font-bold text-gray-900">
+                        Belum ada artikel
+                    </h2>
                     <p className="mx-auto mt-2 max-w-md text-sm text-gray-500">
-                        Belum ada artikel blog. Tambahkan artikel pertama kamu sekarang.
+                        Belum ada artikel blog. Tambahkan artikel pertama kamu
+                        sekarang.
                     </p>
                     <Link
                         href="/blog/create"
                         className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/30 transition-all hover:translate-y-[-0.125rem] hover:shadow-violet-600/40"
                     >
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                        <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M12 4v16m8-8H4"
+                            />
                         </svg>
                         Add Post
                     </Link>
@@ -173,20 +237,25 @@ export default function Index() {
                     <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
                         <div className="flex items-center gap-6">
                             <div>
-                                <span className="text-sm font-medium text-gray-700">Total Posts</span>
+                                <span className="text-sm font-medium text-gray-700">
+                                    Total Posts
+                                </span>
                                 <span className="ml-2 inline-flex items-center rounded-full bg-violet-100 px-2.5 py-0.5 text-sm font-semibold text-violet-700">
                                     {posts.length}
                                 </span>
                             </div>
                             <div>
-                                <span className="text-sm font-medium text-gray-700">Published</span>
+                                <span className="text-sm font-medium text-gray-700">
+                                    Published
+                                </span>
                                 <span className="ml-2 inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-sm font-semibold text-emerald-700">
                                     {posts.filter((p) => p.is_active).length}
                                 </span>
                             </div>
                         </div>
                         <div className="text-sm text-gray-400">
-                            Last updated: {new Date().toLocaleDateString('id-ID')}
+                            Last updated:{' '}
+                            {new Date().toLocaleDateString('id-ID')}
                         </div>
                     </div>
 
@@ -194,28 +263,45 @@ export default function Index() {
                         <table className="w-full min-w-[800px] text-left">
                             <thead className="border-b border-gray-100 bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Artikel</th>
-                                    <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Category</th>
-                                    <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Author</th>
-                                    <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
-                                    <th className="px-6 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Action</th>
+                                    <th className="px-6 py-3.5 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                                        Artikel
+                                    </th>
+                                    <th className="px-6 py-3.5 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                                        Category
+                                    </th>
+                                    <th className="px-6 py-3.5 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                                        Author
+                                    </th>
+                                    <th className="px-6 py-3.5 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                                        Status
+                                    </th>
+                                    <th className="px-6 py-3.5 text-right text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                                        Action
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {posts.map((post) => (
-                                    <tr key={post.id} className="group transition-colors hover:bg-gray-50">
+                                    <tr
+                                        key={post.id}
+                                        className="group transition-colors hover:bg-gray-50"
+                                    >
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-10 w-10 overflow-hidden rounded-xl bg-violet-50">
                                                     {post.cover_image ? (
                                                         <img
-                                                            src={fileUrl(post.cover_image)}
+                                                            src={fileUrl(
+                                                                post.cover_image,
+                                                            )}
                                                             alt={post.title}
                                                             className="h-full w-full object-cover"
                                                         />
                                                     ) : (
                                                         <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-violet-600">
-                                                            {post.title.charAt(0).toUpperCase()}
+                                                            {post.title
+                                                                .charAt(0)
+                                                                .toUpperCase()}
                                                         </div>
                                                     )}
                                                 </div>
@@ -223,7 +309,9 @@ export default function Index() {
                                                     <p className="font-semibold text-gray-900 transition-colors group-hover:text-violet-700">
                                                         {post.title}
                                                     </p>
-                                                    <p className="text-xs text-gray-400">{post.slug}</p>
+                                                    <p className="text-xs text-gray-400">
+                                                        {post.slug}
+                                                    </p>
                                                 </div>
                                             </div>
                                         </td>
@@ -232,7 +320,9 @@ export default function Index() {
                                                 {post.category || '-'}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600">{post.author || '-'}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-600">
+                                            {post.author || '-'}
+                                        </td>
                                         <td className="px-6 py-4">
                                             {post.is_active ? (
                                                 <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
@@ -252,18 +342,40 @@ export default function Index() {
                                                     href={`/blog/${post.id}/edit`}
                                                     className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3.5 py-2 text-xs font-medium text-gray-600 transition hover:bg-gray-100"
                                                 >
-                                                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    <svg
+                                                        className="h-3.5 w-3.5"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                        />
                                                     </svg>
                                                     Edit
                                                 </Link>
                                                 <button
                                                     type="button"
-                                                    onClick={() => openDeleteModal(post)}
+                                                    onClick={() =>
+                                                        openDeleteModal(post)
+                                                    }
                                                     className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3.5 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50"
                                                 >
-                                                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    <svg
+                                                        className="h-3.5 w-3.5"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                        />
                                                     </svg>
                                                     Delete
                                                 </button>
@@ -276,7 +388,9 @@ export default function Index() {
                     </div>
 
                     <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50/50 px-6 py-3.5">
-                        <p className="text-xs text-gray-400">Showing {posts.length} posts</p>
+                        <p className="text-xs text-gray-400">
+                            Showing {posts.length} posts
+                        </p>
                     </div>
                 </div>
             )}

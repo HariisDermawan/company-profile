@@ -7,6 +7,7 @@ export interface Service {
     description: string;
     icon: string | null;
     is_active: boolean;
+    created_at: string | null;
 }
 
 export interface ServicePayload {
@@ -22,16 +23,12 @@ interface ServiceResponse {
 }
 
 export const getServices = async (): Promise<Service[]> => {
-    const response = await api.get<ServiceResponse>(
-        '/api/admin/services',
-    );
+    const response = await api.get<ServiceResponse>('/api/admin/services');
 
     return response.data.data;
 };
 
-export const getService = async (
-    id: number,
-): Promise<Service> => {
+export const getService = async (id: number): Promise<Service> => {
     const response = await api.get<{ data: Service }>(
         `/api/admin/services/${id}`,
     );
@@ -39,33 +36,20 @@ export const getService = async (
     return response.data.data;
 };
 
-export const createService = async (
-    payload: ServicePayload,
-) => {
-    const response = await api.post(
-        '/api/admin/services',
-        payload,
-    );
+export const createService = async (payload: ServicePayload) => {
+    const response = await api.post('/api/admin/services', payload);
 
     return response.data;
 };
 
-export const updateService = async (
-    id: number,
-    payload: ServicePayload,
-) => {
-    const response = await api.put(
-        `/api/admin/services/${id}`,
-        payload,
-    );
+export const updateService = async (id: number, payload: ServicePayload) => {
+    const response = await api.put(`/api/admin/services/${id}`, payload);
 
     return response.data;
 };
 
 export const deleteService = async (id: number) => {
-    const response = await api.delete(
-        `/api/admin/services/${id}`,
-    );
+    const response = await api.delete(`/api/admin/services/${id}`);
 
     return response.data;
 };
