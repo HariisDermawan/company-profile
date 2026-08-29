@@ -11,9 +11,7 @@ export default function Dashboard() {
     const handleLogout = async () => {
         try {
             await logout();
-
             setUser(null);
-
             window.location.href = '/login';
         } catch (error) {
             console.error('Logout failed:', error);
@@ -87,6 +85,15 @@ export default function Dashboard() {
                             </svg>
                             Services
                             <span className="ml-auto text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">0</span>
+                        </Link>
+                        <Link
+                            href="/projects"
+                            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 transition-all hover:bg-gray-50 hover:text-gray-900 group"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                            Projects
                         </Link>
                         <Link
                             href="/profile"
@@ -285,6 +292,20 @@ export default function Dashboard() {
                                 </div>
                             </Link>
 
+                            <Link href="/projects" className="group p-5 rounded-2xl bg-gray-50 hover:bg-indigo-50 transition-all border border-transparent hover:border-indigo-200">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-12 w-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">Manage Projects</h3>
+                                        <p className="text-sm text-gray-400">Edit & delete projects</p>
+                                    </div>
+                                </div>
+                            </Link>
+
                             <Link href="/profile" className="group p-5 rounded-2xl bg-gray-50 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-200">
                                 <div className="flex items-center gap-3">
                                     <div className="h-12 w-12 rounded-2xl bg-rose-600 flex items-center justify-center text-white shadow-lg shadow-rose-600/30">
@@ -295,21 +316,6 @@ export default function Dashboard() {
                                     <div>
                                         <h3 className="font-semibold text-gray-900 group-hover:text-rose-600 transition-colors">Profile</h3>
                                         <p className="text-sm text-gray-400">View your profile</p>
-                                    </div>
-                                </div>
-                            </Link>
-
-                            <Link href="/settings" className="group p-5 rounded-2xl bg-gray-50 hover:bg-amber-50 transition-all border border-transparent hover:border-amber-200">
-                                <div className="flex items-center gap-3">
-                                    <div className="h-12 w-12 rounded-2xl bg-amber-600 flex items-center justify-center text-white shadow-lg shadow-amber-600/30">
-                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-900 group-hover:text-amber-600 transition-colors">Settings</h3>
-                                        <p className="text-sm text-gray-400">Configure profile</p>
                                     </div>
                                 </div>
                             </Link>

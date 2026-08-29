@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Testimonial;
 use Illuminate\Database\Seeder;
 
 class TestimonialSeeder extends Seeder
@@ -12,6 +12,8 @@ class TestimonialSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        Testimonial::query()->delete();
+
+        Testimonial::factory()->count(5)->create();
     }
 }

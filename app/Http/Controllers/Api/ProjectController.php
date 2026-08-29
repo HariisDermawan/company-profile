@@ -7,7 +7,6 @@ use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Resources\Project\ProjectResource;
 use App\Models\Project;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -34,6 +33,7 @@ class ProjectController extends Controller
             $data['image'] = $request->file('image')->store('project', 'public');
         }
         $project = Project::create($data);
+
         return new ProjectResource($project);
     }
 
@@ -49,34 +49,42 @@ class ProjectController extends Controller
      * Update the specified resource in storage.
      */
     public function update(
-    UpdateProjectRequest $request,
-    Project $project
-) {
-    $data = $request->validated();
+        UpdateProjectRequest $request,
+        Project $project
+    ) {
+        $data = $request->validated();
 
-    if (empty($data['slug'])) {
-        $data['slug'] = Str::slug($data['title']);
-    }
-
-    if ($request->hasFile('image')) {
-        if ($project->image) {
-            Storage::disk('public')->delete($project->image);
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['title']);
         }
 
-        $data['image'] = $request->file('image')
-            ->store('projects', 'public');
+        if ($request->hasFile('image')) {
+            if ($project->image) {
+                Storage::disk('public')->delete($project->image);
+            }
+
+            $data['image'] = $request->file('image')
+                ->store('projects', 'public');
+        }
+
+        $project->update($data);
+
+        return new ProjectResource($project->fresh());
     }
-
-    $project->update($data);
-
-    return new ProjectResource($project->fresh());
-}
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Project $project)
     {
-        //
+        if ($project->image) {
+            Storage::disk('public')->delete($project->image);
+        }
+
+        $project->delete();
+
+        return response()->json([
+            'message' => 'Project deleted successfully.',
+        ]);
     }
 }

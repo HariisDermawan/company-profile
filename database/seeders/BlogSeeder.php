@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\BlogPost;
 use Illuminate\Database\Seeder;
 
 class BlogSeeder extends Seeder
@@ -12,6 +12,8 @@ class BlogSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        BlogPost::query()->delete();
+
+        BlogPost::factory()->count(6)->create();
     }
 }

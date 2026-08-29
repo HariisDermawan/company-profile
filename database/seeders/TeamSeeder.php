@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\TeamMember;
 use Illuminate\Database\Seeder;
 
 class TeamSeeder extends Seeder
@@ -12,6 +12,8 @@ class TeamSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        TeamMember::query()->delete();
+
+        TeamMember::factory()->count(8)->create();
     }
 }

@@ -11,7 +11,13 @@ createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
 
     setup({ el, App, props }) {
-        createRoot(el).render(
+        if (!el) {
+            throw new Error('Root element not found. Make sure there is a <div id="app"></div> in your Blade layout.');
+        }
+
+        const root = createRoot(el);
+
+        root.render(
             <AuthProvider>
                 <App {...props} />
             </AuthProvider>,

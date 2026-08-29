@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\CompanyProfile;
 use Illuminate\Database\Seeder;
 
 class CompanySeeder extends Seeder
@@ -12,6 +12,12 @@ class CompanySeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        CompanyProfile::query()->delete();
+
+        CompanyProfile::factory()->create([
+            'name' => 'Company Profile',
+            'tagline' => 'Building ideas into reality',
+            'about' => 'We are a creative technology company helping brands grow through web, mobile, and digital experiences.',
+        ]);
     }
 }

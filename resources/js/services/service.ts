@@ -23,18 +23,17 @@ interface ServiceResponse {
 
 export const getServices = async (): Promise<Service[]> => {
     const response = await api.get<ServiceResponse>(
-        '/api/services',
+        '/api/admin/services',
     );
 
     return response.data.data;
 };
 
-// TAMBAHKAN INI
 export const getService = async (
     id: number,
 ): Promise<Service> => {
     const response = await api.get<{ data: Service }>(
-        `/api/services/${id}`,
+        `/api/admin/services/${id}`,
     );
 
     return response.data.data;
@@ -44,7 +43,7 @@ export const createService = async (
     payload: ServicePayload,
 ) => {
     const response = await api.post(
-        '/api/services',
+        '/api/admin/services',
         payload,
     );
 
@@ -56,7 +55,7 @@ export const updateService = async (
     payload: ServicePayload,
 ) => {
     const response = await api.put(
-        `/api/services/${id}`,
+        `/api/admin/services/${id}`,
         payload,
     );
 
@@ -65,7 +64,7 @@ export const updateService = async (
 
 export const deleteService = async (id: number) => {
     const response = await api.delete(
-        `/api/services/${id}`,
+        `/api/admin/services/${id}`,
     );
 
     return response.data;
