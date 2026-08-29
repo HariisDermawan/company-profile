@@ -44,7 +44,7 @@ class UpdateProjectRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
-                'max:5120',
+                'max:10240',
             ],
 
             'category' => [
