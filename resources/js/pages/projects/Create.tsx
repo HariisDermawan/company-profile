@@ -64,7 +64,16 @@ export default function Create() {
             console.error(error);
 
             if (error.response?.status === 422) {
-                setError('Data tidak valid. Periksa kembali input kamu.');
+                const errors = error.response?.data?.errors;
+                const message = errors
+                    ? Object.values(errors).flat()[0]
+                    : null;
+
+                setError(
+                    message
+                        ? `Data tidak valid: ${message}`
+                        : 'Data tidak valid. Periksa kembali input kamu.',
+                );
             } else {
                 setError('Gagal membuat project.');
             }

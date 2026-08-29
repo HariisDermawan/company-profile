@@ -26,7 +26,7 @@ class StoreProjectRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'image' => ['nullable','image','mimes:jpg,jpeg,png,webp','max:2048',],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'category' => ['nullable', 'string', 'max:255'],
             'client' => ['nullable', 'string', 'max:255'],
             'project_url' => ['nullable', 'url', 'max:255'],

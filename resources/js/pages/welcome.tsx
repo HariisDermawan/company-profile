@@ -1,357 +1,1504 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
+
+import { useAuth } from '@/contexts/AuthContext';
+import { fileUrl } from '@/lib/utils';
+import type { BlogPost } from '@/services/blog';
+import type { Client } from '@/services/clients';
+import type { CompanyProfile } from '@/services/company';
+import type { HomeSection } from '@/services/homeSections';
+import type { Project } from '@/services/projects';
+import {
+    getPublicBlogPosts,
+    getPublicClients,
+    getPublicCompany,
+    getPublicHomeSections,
+    getPublicProjects,
+    getPublicServices,
+    getPublicTeamMembers,
+    getPublicTestimonials,
+    sendContactMessage,
+} from '@/services/public';
+import type { Service } from '@/services/service';
+import type { TeamMember } from '@/services/team';
+import type { Testimonial } from '@/services/testimonials';
+
+const NAV_LINKS = [
+    { label: 'Home', href: '#hero' },
+    { label: 'Tentang', href: '#about' },
+    { label: 'Layanan', href: '#services' },
+    { label: 'Proyek', href: '#projects' },
+    { label: 'Tim', href: '#team' },
+    { label: 'Blog', href: '#blog' },
+    { label: 'Kontak', href: '#contact' },
+];
+
+const SOCIAL_LINKS: {
+    label: string;
+    key: keyof Pick<
+        CompanyProfile,
+        'facebook_url' | 'instagram_url' | 'twitter_url' | 'linkedin_url'
+    >;
+}[] = [
+    { label: 'Facebook', key: 'facebook_url' },
+    { label: 'Instagram', key: 'instagram_url' },
+    { label: 'Twitter', key: 'twitter_url' },
+    { label: 'LinkedIn', key: 'linkedin_url' },
+];
+
+function SectionHeading({
+    eyebrow,
+    title,
+    subtitle,
+}: {
+    eyebrow: string;
+    title: string;
+    subtitle?: string | null;
+}) {
+    return (
+        <div className="mx-auto mb-16 max-w-2xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-4 py-1.5 text-xs font-bold tracking-widest text-violet-700 uppercase">
+                <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-500" />
+                {eyebrow}
+            </span>
+            <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+                {title}
+            </h2>
+            {subtitle && (
+                <p className="mt-5 text-lg leading-relaxed text-gray-500">
+                    {subtitle}
+                </p>
+            )}
+        </div>
+    );
+}
+
+function Stars({ rating = 5 }: { rating?: number }) {
+    return (
+        <div className="flex gap-0.5">
+            {Array.from({ length: 5 }).map((_, index) => (
+                <svg
+                    key={index}
+                    className={
+                        index < rating
+                            ? 'h-4 w-4 text-amber-400'
+                            : 'h-4 w-4 text-gray-200'
+                    }
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                >
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+            ))}
+        </div>
+    );
+}
+
+function formatDate(value?: string | null): string {
+    if (!value) {
+        return '';
+    }
+
+    return new Date(value).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    });
+}
 
 export default function Welcome() {
-    return (
-        <>
-            <Head title="Welcome" />
-            <div className="flex min-h-screen flex-col items-center bg-[#FDFDFC] p-6 text-[#1b1b18] lg:justify-center lg:p-8 dark:bg-[#0a0a0a]">
-                <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                    <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">
-                        <div className="flex-1 rounded-br-lg rounded-bl-lg bg-white p-6 pb-12 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-tl-lg lg:rounded-br-none lg:p-20 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]">
-                            <h1 className="mb-1 font-medium">
-                                Let's get started
-                            </h1>
-                            <p className="mb-2 text-[#706f6c] dark:text-[#A1A09A]">
-                                Laravel has an incredibly rich ecosystem.
-                                <br />
-                                We suggest starting with the following.
-                            </p>
-                            <ul className="mb-4 flex flex-col lg:mb-6">
-                                <li className="relative flex items-center gap-4 py-2 before:absolute before:top-1/2 before:bottom-0 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] dark:before:border-[#3E3E3A]">
-                                    <span className="relative bg-white py-1 dark:bg-[#161615]">
-                                        <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-[#dbdbd7] dark:bg-[#3E3E3A]" />
-                                        </span>
-                                    </span>
-                                    <span>
-                                        Read the
-                                        <a
-                                            href="https://laravel.com/docs"
-                                            target="_blank"
-                                            className="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
-                                        >
-                                            <span>Documentation</span>
-                                            <svg
-                                                width={10}
-                                                height={11}
-                                                viewBox="0 0 10 11"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-2.5 w-2.5"
-                                            >
-                                                <path
-                                                    d="M7.70833 6.95834V2.79167H3.54167M2.5 8L7.5 3.00001"
-                                                    stroke="currentColor"
-                                                    strokeLinecap="square"
-                                                />
-                                            </svg>
-                                        </a>
-                                    </span>
-                                </li>
-                                <li className="relative flex items-center gap-4 py-2 before:absolute before:top-0 before:bottom-1/2 before:left-[0.4rem] before:border-l before:border-[#e3e3e0] dark:before:border-[#3E3E3A]">
-                                    <span className="relative bg-white py-1 dark:bg-[#161615]">
-                                        <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#e3e3e0] bg-[#FDFDFC] shadow-[0px_0px_1px_0px_rgba(0,0,0,0.03),0px_1px_2px_0px_rgba(0,0,0,0.06)] dark:border-[#3E3E3A] dark:bg-[#161615]">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-[#dbdbd7] dark:bg-[#3E3E3A]" />
-                                        </span>
-                                    </span>
-                                    <span>
-                                        Watch video tutorials at
-                                        <a
-                                            href="https://laracasts.com"
-                                            target="_blank"
-                                            className="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
-                                        >
-                                            <span>Laracasts</span>
-                                            <svg
-                                                width={10}
-                                                height={11}
-                                                viewBox="0 0 10 11"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-2.5 w-2.5"
-                                            >
-                                                <path
-                                                    d="M7.70833 6.95834V2.79167H3.54167M2.5 8L7.5 3.00001"
-                                                    stroke="currentColor"
-                                                    strokeLinecap="square"
-                                                />
-                                            </svg>
-                                        </a>
-                                    </span>
-                                </li>
-                            </ul>
-                            <ul className="flex gap-3 text-sm leading-normal">
-                                <li>
-                                    <a
-                                        href="https://cloud.laravel.com"
-                                        target="_blank"
-                                        className="inline-block rounded-sm border border-black bg-[#1b1b18] px-5 py-1.5 text-sm leading-normal text-white hover:border-black hover:bg-black dark:border-[#eeeeec] dark:bg-[#eeeeec] dark:text-[#1C1C1A] dark:hover:border-white dark:hover:bg-white"
-                                    >
-                                        Deploy now
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div className="relative -mb-px aspect-[335/364] w-full shrink-0 overflow-hidden rounded-t-lg bg-[#fff2f2] lg:mb-0 lg:-ml-px lg:aspect-auto lg:w-[438px] lg:rounded-t-none lg:rounded-r-lg dark:bg-[#1D0002]">
-                            {/* Laravel Logo */}
-                            <svg
-                                className="w-full max-w-none translate-y-0 text-[#F53003] opacity-100 transition-all duration-750 dark:text-[#F61500] starting:opacity-0 motion-safe:starting:translate-y-6"
-                                viewBox="0 0 438 104"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M17.2036 -3H0V102.197H49.5189V86.7187H17.2036V-3Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M110.256 41.6337C108.061 38.1275 104.945 35.3731 100.905 33.3681C96.8667 31.3647 92.8016 30.3618 88.7131 30.3618C83.4247 30.3618 78.5885 31.3389 74.201 33.2923C69.8111 35.2456 66.0474 37.928 62.9059 41.3333C59.7643 44.7401 57.3198 48.6726 55.5754 53.1293C53.8287 57.589 52.9572 62.274 52.9572 67.1813C52.9572 72.1925 53.8287 76.8995 55.5754 81.3069C57.3191 85.7173 59.7636 89.6241 62.9059 93.0293C66.0474 96.4361 69.8119 99.1155 74.201 101.069C78.5885 103.022 83.4247 103.999 88.7131 103.999C92.8016 103.999 96.8667 102.997 100.905 100.994C104.945 98.9911 108.061 96.2359 110.256 92.7282V102.195H126.563V32.1642H110.256V41.6337ZM108.76 75.7472C107.762 78.4531 106.366 80.8078 104.572 82.8112C102.776 84.8161 100.606 86.4183 98.0637 87.6206C95.5202 88.823 92.7004 89.4238 89.6103 89.4238C86.5178 89.4238 83.7252 88.823 81.2324 87.6206C78.7388 86.4183 76.5949 84.8161 74.7998 82.8112C73.004 80.8078 71.6319 78.4531 70.6856 75.7472C69.7356 73.0421 69.2644 70.1868 69.2644 67.1821C69.2644 64.1758 69.7356 61.3205 70.6856 58.6154C71.6319 55.9102 73.004 53.5571 74.7998 51.5522C76.5949 49.5495 78.738 47.9451 81.2324 46.7427C83.7252 45.5404 86.5178 44.9396 89.6103 44.9396C92.7012 44.9396 95.5202 45.5404 98.0637 46.7427C100.606 47.9451 102.776 49.5487 104.572 51.5522C106.367 53.5571 107.762 55.9102 108.76 58.6154C109.756 61.3205 110.256 64.1758 110.256 67.1821C110.256 70.1868 109.756 73.0421 108.76 75.7472Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M242.805 41.6337C240.611 38.1275 237.494 35.3731 233.455 33.3681C229.416 31.3647 225.351 30.3618 221.262 30.3618C215.974 30.3618 211.138 31.3389 206.75 33.2923C202.36 35.2456 198.597 37.928 195.455 41.3333C192.314 44.7401 189.869 48.6726 188.125 53.1293C186.378 57.589 185.507 62.274 185.507 67.1813C185.507 72.1925 186.378 76.8995 188.125 81.3069C189.868 85.7173 192.313 89.6241 195.455 93.0293C198.597 96.4361 202.361 99.1155 206.75 101.069C211.138 103.022 215.974 103.999 221.262 103.999C225.351 103.999 229.416 102.997 233.455 100.994C237.494 98.9911 240.611 96.2359 242.805 92.7282V102.195H259.112V32.1642H242.805V41.6337ZM241.31 75.7472C240.312 78.4531 238.916 80.8078 237.122 82.8112C235.326 84.8161 233.156 86.4183 230.614 87.6206C228.07 88.823 225.251 89.4238 222.16 89.4238C219.068 89.4238 216.275 88.823 213.782 87.6206C211.289 86.4183 209.145 84.8161 207.35 82.8112C205.554 80.8078 204.182 78.4531 203.236 75.7472C202.286 73.0421 201.814 70.1868 201.814 67.1821C201.814 64.1758 202.286 61.3205 203.236 58.6154C204.182 55.9102 205.554 53.5571 207.35 51.5522C209.145 49.5495 211.288 47.9451 213.782 46.7427C216.275 45.5404 219.068 44.9396 222.16 44.9396C225.251 44.9396 228.07 45.5404 230.614 46.7427C233.156 47.9451 235.326 49.5487 237.122 51.5522C238.917 53.5571 240.312 55.9102 241.31 58.6154C242.306 61.3205 242.806 64.1758 242.806 67.1821C242.805 70.1868 242.305 73.0421 241.31 75.7472Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M438 -3H421.694V102.197H438V-3Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M139.43 102.197H155.735V48.2834H183.712V32.1665H139.43V102.197Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M324.49 32.1665L303.995 85.794L283.498 32.1665H266.983L293.748 102.197H314.242L341.006 32.1665H324.49Z"
-                                    fill="currentColor"
-                                />
-                                <path
-                                    d="M376.571 30.3656C356.603 30.3656 340.797 46.8497 340.797 67.1828C340.797 89.6597 356.094 104 378.661 104C391.29 104 399.354 99.1488 409.206 88.5848L398.189 80.0226C398.183 80.031 389.874 90.9895 377.468 90.9895C363.048 90.9895 356.977 79.3111 356.977 73.269H411.075C413.917 50.1328 398.775 30.3656 376.571 30.3656ZM357.02 61.0967C357.145 59.7487 359.023 43.3761 376.442 43.3761C393.861 43.3761 395.978 59.7464 396.099 61.0967H357.02Z"
-                                    fill="currentColor"
-                                />
-                            </svg>
+    const { user } = useAuth();
 
-                            {/* 13 */}
-                            <svg
-                                className="relative -mt-[6.6rem] -ml-8 w-[438px] max-w-none [--stroke-color:#1B1B18] lg:ml-0 dark:[--stroke-color:#FF750F]"
-                                viewBox="0 0 440 392"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <g className="text-[#1B1B18] opacity-100 mix-blend-darken transition-all delay-300 duration-750 dark:text-black dark:mix-blend-normal starting:opacity-0">
-                                    <mask
-                                        id="path-1-mask"
-                                        maskUnits="userSpaceOnUse"
-                                        x="-0.328613"
-                                        y="103"
-                                        width="338"
-                                        height="299"
-                                        fill="black"
-                                    >
-                                        <rect
-                                            fill="white"
-                                            x="-0.328613"
-                                            y="103"
-                                            width="338"
-                                            height="299"
-                                        />
-                                        <path d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z" />
-                                        <path d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z" />
-                                    </mask>
-                                    <path
-                                        d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M234.936 400.8C204.136 400.8 178.936 392.4 159.336 375.6C140.136 358.8 130.536 337 130.536 310.2H200.736C200.736 318.2 203.736 324.8 209.736 330C215.736 335.2 223.736 337.8 233.736 337.8C243.336 337.8 251.136 335 257.136 329.4C263.536 323.8 266.736 316.6 266.736 307.8C266.736 299.8 263.936 293.2 258.336 288C252.736 282.8 245.536 280.2 236.736 280.2H199.536V218.4H236.736C243.536 218.4 249.336 216 254.136 211.2C258.936 206.4 261.336 200.4 261.336 193.2C261.336 184.8 258.736 178.2 253.536 173.4C248.336 168.6 241.736 166.2 233.736 166.2C226.536 166.2 220.336 168.4 215.136 172.8C210.336 177.2 207.936 182.8 207.936 189.6H141.336C141.336 164.8 150.136 144.6 167.736 129C185.336 113 207.936 105 235.536 105C263.136 105 285.536 112.2 302.736 126.6C320.336 141 329.136 160 329.136 183.6C329.136 200.8 324.536 214.8 315.336 225.6C306.136 236 294.336 243.2 279.936 247.2C297.136 252 310.736 260.2 320.736 271.8C331.136 283.4 336.336 298 336.336 315.6C336.336 340.4 326.936 360.8 308.136 376.8C289.336 392.8 264.936 400.8 234.936 400.8Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-1-mask)"
-                                    />
-                                    <path
-                                        d="M26.8714 167.6H1.67139V105.2H94.6714V400.2H26.8714V167.6Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-1-mask)"
-                                    />
-                                </g>
+    const [company, setCompany] = useState<CompanyProfile | null>(null);
+    const [sections, setSections] = useState<HomeSection[]>([]);
+    const [services, setServices] = useState<Service[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [team, setTeam] = useState<TeamMember[]>([]);
+    const [clients, setClients] = useState<Client[]>([]);
+    const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+    const [posts, setPosts] = useState<BlogPost[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-                                <g className="text-[#F3BEC7] opacity-100 transition-all delay-400 duration-750 dark:text-[#4B0600] starting:opacity-0 motion-safe:starting:-translate-x-[26px]">
-                                    <mask
-                                        id="path-2-mask"
-                                        maskUnits="userSpaceOnUse"
-                                        x="25.3357"
-                                        y="103"
-                                        width="338"
-                                        height="299"
-                                        fill="black"
-                                    >
-                                        <rect
-                                            fill="white"
-                                            x="25.3357"
-                                            y="103"
-                                            width="338"
-                                            height="299"
-                                        />
-                                        <path d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z" />
-                                        <path d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z" />
-                                    </mask>
-                                    <path
-                                        d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M260.6 400.8C229.8 400.8 204.6 392.4 185 375.6C165.8 358.8 156.2 337 156.2 310.2H226.4C226.4 318.2 229.4 324.8 235.4 330C241.4 335.2 249.4 337.8 259.4 337.8C269 337.8 276.8 335 282.8 329.4C289.2 323.8 292.4 316.6 292.4 307.8C292.4 299.8 289.6 293.2 284 288C278.4 282.8 271.2 280.2 262.4 280.2H225.2V218.4H262.4C269.2 218.4 275 216 279.8 211.2C284.6 206.4 287 200.4 287 193.2C287 184.8 284.4 178.2 279.2 173.4C274 168.6 267.4 166.2 259.4 166.2C252.2 166.2 246 168.4 240.8 172.8C236 177.2 233.6 182.8 233.6 189.6H167C167 164.8 175.8 144.6 193.4 129C211 113 233.6 105 261.2 105C288.8 105 311.2 112.2 328.4 126.6C346 141 354.8 160 354.8 183.6C354.8 200.8 350.2 214.8 341 225.6C331.8 236 320 243.2 305.6 247.2C322.8 252 336.4 260.2 346.4 271.8C356.8 283.4 362 298 362 315.6C362 340.4 352.6 360.8 333.8 376.8C315 392.8 290.6 400.8 260.6 400.8Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-2-mask)"
-                                    />
-                                    <path
-                                        d="M52.5357 167.6H27.3357V105.2H120.336V400.2H52.5357V167.6Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-2-mask)"
-                                    />
-                                </g>
+    const [contactName, setContactName] = useState('');
+    const [contactEmail, setContactEmail] = useState('');
+    const [contactSubject, setContactSubject] = useState('');
+    const [contactMessage, setContactMessage] = useState('');
+    const [sending, setSending] = useState(false);
+    const [contactError, setContactError] = useState('');
+    const [contactSuccess, setContactSuccess] = useState(false);
 
-                                <g className="text-[#F8B803] opacity-100 mix-blend-color transition-all delay-400 duration-750 dark:text-[#391800] dark:mix-blend-hard-light starting:opacity-0 motion-safe:starting:-translate-x-[51px]">
-                                    <mask
-                                        id="path-3-mask"
-                                        maskUnits="userSpaceOnUse"
-                                        x="51"
-                                        y="103"
-                                        width="338"
-                                        height="299"
-                                        fill="black"
-                                    >
-                                        <rect
-                                            fill="white"
-                                            x="51"
-                                            y="103"
-                                            width="338"
-                                            height="299"
-                                        />
-                                        <path d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z" />
-                                        <path d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z" />
-                                    </mask>
-                                    <path
-                                        d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M286.264 400.8C255.464 400.8 230.264 392.4 210.664 375.6C191.464 358.8 181.864 337 181.864 310.2H252.064C252.064 318.2 255.064 324.8 261.064 330C267.064 335.2 275.064 337.8 285.064 337.8C294.664 337.8 302.464 335 308.464 329.4C314.864 323.8 318.064 316.6 318.064 307.8C318.064 299.8 315.264 293.2 309.664 288C304.064 282.8 296.864 280.2 288.064 280.2H250.864V218.4H288.064C294.864 218.4 300.664 216 305.464 211.2C310.264 206.4 312.664 200.4 312.664 193.2C312.664 184.8 310.064 178.2 304.864 173.4C299.664 168.6 293.064 166.2 285.064 166.2C277.864 166.2 271.664 168.4 266.464 172.8C261.664 177.2 259.264 182.8 259.264 189.6H192.664C192.664 164.8 201.464 144.6 219.064 129C236.664 113 259.264 105 286.864 105C314.464 105 336.864 112.2 354.064 126.6C371.664 141 380.464 160 380.464 183.6C380.464 200.8 375.864 214.8 366.664 225.6C357.464 236 345.664 243.2 331.264 247.2C348.464 252 362.064 260.2 372.064 271.8C382.464 283.4 387.664 298 387.664 315.6C387.664 340.4 378.264 360.8 359.464 376.8C340.664 392.8 316.264 400.8 286.264 400.8Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-3-mask)"
-                                    />
-                                    <path
-                                        d="M78.2 167.6H53V105.2H146V400.2H78.2V167.6Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-3-mask)"
-                                    />
-                                </g>
+    useEffect(() => {
+        const fetchAll = async () => {
+            try {
+                const [
+                    companyData,
+                    sectionsData,
+                    servicesData,
+                    projectsData,
+                    teamData,
+                    clientsData,
+                    testimonialsData,
+                    postsData,
+                ] = await Promise.all([
+                    getPublicCompany(),
+                    getPublicHomeSections(),
+                    getPublicServices(),
+                    getPublicProjects(),
+                    getPublicTeamMembers(),
+                    getPublicClients(),
+                    getPublicTestimonials(),
+                    getPublicBlogPosts(),
+                ]);
 
-                                <g className="text-[#F3BEC7] opacity-100 mix-blend-multiply transition-all delay-400 duration-750 dark:text-[#733000] dark:mix-blend-normal starting:opacity-0 motion-safe:starting:-translate-x-[78px]">
-                                    <mask
-                                        id="path-4-mask"
-                                        maskUnits="userSpaceOnUse"
-                                        x="76.6643"
-                                        y="103"
-                                        width="338"
-                                        height="299"
-                                        fill="black"
-                                    >
-                                        <rect
-                                            fill="white"
-                                            x="76.6643"
-                                            y="103"
-                                            width="338"
-                                            height="299"
-                                        />
-                                        <path d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z" />
-                                        <path d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z" />
-                                    </mask>
-                                    <path
-                                        d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M311.929 400.8C281.129 400.8 255.929 392.4 236.329 375.6C217.129 358.8 207.529 337 207.529 310.2H277.729C277.729 318.2 280.729 324.8 286.729 330C292.729 335.2 300.729 337.8 310.729 337.8C320.329 337.8 328.129 335 334.129 329.4C340.529 323.8 343.729 316.6 343.729 307.8C343.729 299.8 340.929 293.2 335.329 288C329.729 282.8 322.529 280.2 313.729 280.2H276.529V218.4H313.729C320.529 218.4 326.329 216 331.129 211.2C335.929 206.4 338.329 200.4 338.329 193.2C338.329 184.8 335.729 178.2 330.529 173.4C325.329 168.6 318.729 166.2 310.729 166.2C303.529 166.2 297.329 168.4 292.129 172.8C287.329 177.2 284.929 182.8 284.929 189.6H218.329C218.329 164.8 227.129 144.6 244.729 129C262.329 113 284.929 105 312.529 105C340.129 105 362.529 112.2 379.729 126.6C397.329 141 406.129 160 406.129 183.6C406.129 200.8 401.529 214.8 392.329 225.6C383.129 236 371.329 243.2 356.929 247.2C374.129 252 387.729 260.2 397.729 271.8C408.129 283.4 413.329 298 413.329 315.6C413.329 340.4 403.929 360.8 385.129 376.8C366.329 392.8 341.929 400.8 311.929 400.8Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-4-mask)"
-                                    />
-                                    <path
-                                        d="M103.864 167.6H78.6643V105.2H171.664V400.2H103.864V167.6Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-4-mask)"
-                                    />
-                                </g>
+                setCompany(companyData);
+                setSections(sectionsData);
+                setServices(servicesData);
+                setProjects(projectsData);
+                setTeam(teamData);
+                setClients(clientsData);
+                setTestimonials(testimonialsData);
+                setPosts(postsData);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-                                <g className="text-[#F3BEC7] opacity-100 mix-blend-hard-light transition-all delay-400 duration-750 dark:text-[#4B0600] starting:opacity-0 motion-safe:starting:-translate-x-[102px]">
-                                    <mask
-                                        id="path-5-mask"
-                                        maskUnits="userSpaceOnUse"
-                                        x="102.329"
-                                        y="103"
-                                        width="338"
-                                        height="299"
-                                        fill="black"
-                                    >
-                                        <rect
-                                            fill="white"
-                                            x="102.329"
-                                            y="103"
-                                            width="338"
-                                            height="299"
-                                        />
-                                        <path d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z" />
-                                        <path d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z" />
-                                    </mask>
-                                    <path
-                                        d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z"
-                                        fill="currentColor"
-                                    />
-                                    <path
-                                        d="M337.593 400.8C306.793 400.8 281.593 392.4 261.993 375.6C242.793 358.8 233.193 337 233.193 310.2H303.393C303.393 318.2 306.393 324.8 312.393 330C318.393 335.2 326.393 337.8 336.393 337.8C345.993 337.8 353.793 335 359.793 329.4C366.193 323.8 369.393 316.6 369.393 307.8C369.393 299.8 366.593 293.2 360.993 288C355.393 282.8 348.193 280.2 339.393 280.2H302.193V218.4H339.393C346.193 218.4 351.993 216 356.793 211.2C361.593 206.4 363.993 200.4 363.993 193.2C363.993 184.8 361.393 178.2 356.193 173.4C350.993 168.6 344.393 166.2 336.393 166.2C329.193 166.2 322.993 168.4 317.793 172.8C312.993 177.2 310.593 182.8 310.593 189.6H243.993C243.993 164.8 252.793 144.6 270.393 129C287.993 113 310.593 105 338.193 105C365.793 105 388.193 112.2 405.393 126.6C422.993 141 431.793 160 431.793 183.6C431.793 200.8 427.193 214.8 417.993 225.6C408.793 236 396.993 243.2 382.593 247.2C399.793 252 413.393 260.2 423.393 271.8C433.793 283.4 438.993 298 438.993 315.6C438.993 340.4 429.593 360.8 410.793 376.8C391.993 392.8 367.593 400.8 337.593 400.8Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-5-mask)"
-                                    />
-                                    <path
-                                        d="M129.529 167.6H104.329V105.2H197.329V400.2H129.529V167.6Z"
-                                        stroke="var(--stroke-color)"
-                                        strokeWidth="2.4"
-                                        mask="url(#path-5-mask)"
-                                    />
-                                </g>
-                            </svg>
-                            <div className="absolute inset-0 rounded-t-lg shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-t-none lg:rounded-r-lg dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"></div>
-                        </div>
-                    </main>
+        fetchAll();
+    }, []);
+
+    const getSection = (key: string) =>
+        sections.find((section) => section.section_key === key);
+
+    const handleContactSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        setSending(true);
+        setContactError('');
+        setContactSuccess(false);
+
+        try {
+            await sendContactMessage({
+                name: contactName,
+                email: contactEmail,
+                subject: contactSubject || undefined,
+                message: contactMessage,
+            });
+
+            setContactSuccess(true);
+            setContactName('');
+            setContactEmail('');
+            setContactSubject('');
+            setContactMessage('');
+        } catch (error) {
+            console.error(error);
+
+            setContactError('Gagal mengirim pesan. Silakan coba lagi.');
+        } finally {
+            setSending(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex min-h-screen flex-col items-center justify-center bg-[#0b0f1a]">
+                <Head title="Home" />
+                <div className="relative">
+                    <div className="absolute inset-0 -z-0 animate-ping rounded-3xl bg-violet-500/40 blur-2xl" />
+                    <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 via-fuchsia-500 to-indigo-600 text-2xl font-bold text-white shadow-2xl shadow-violet-600/50">
+                        {(company?.name ?? 'C').charAt(0)}
+                    </div>
                 </div>
+                <p className="mt-6 animate-pulse text-sm font-semibold tracking-widest text-gray-400 uppercase">
+                    Memuat...
+                </p>
             </div>
-        </>
+        );
+    }
+
+    const hero = getSection('hero');
+    const about = getSection('about');
+    const cta = getSection('cta');
+
+    const heroTitle = hero?.title || company?.tagline || company?.name;
+    const heroSubtitle =
+        hero?.description || hero?.subtitle || company?.about || '';
+    const aboutTitle = about?.title || 'Tentang Kami';
+    const aboutSubtitle =
+        about?.subtitle || 'Mengenal lebih dekat perusahaan kami';
+    const aboutDescription = about?.description || company?.about || '';
+    const heroImage = hero?.image ?? null;
+    const aboutImage = about?.image ?? null;
+    const ctaTitle = cta?.title || 'Siap Bekerja Sama dengan Kami?';
+    const ctaSubtitle =
+        cta?.description ||
+        cta?.subtitle ||
+        'Hubungi kami sekarang untuk mendiskusikan kebutuhan bisnis Anda.';
+
+    const [titlePart, highlightPart] = splitHighlight(heroTitle ?? '');
+    const featuredProjects = projects.filter((p) => p.is_featured);
+    const showProjects = featuredProjects.length > 0 ? featuredProjects : projects;
+
+    return (
+        <div className="min-h-screen overflow-x-hidden bg-white text-gray-900">
+            <Head title="Home" />
+
+            {/* Navbar */}
+            <header className="sticky top-0 z-50 border-b border-white/40 bg-white/70 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60">
+                <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+                    <a href="#hero" className="group flex items-center gap-3">
+                        {company?.logo ? (
+                            <img
+                                src={fileUrl(company.logo)}
+                                alt={company.name ?? ''}
+                                className="h-10 w-10 rounded-xl object-cover shadow-lg shadow-violet-500/20 ring-1 ring-violet-100"
+                            />
+                        ) : (
+                            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 via-fuchsia-500 to-indigo-600 text-lg font-bold text-white shadow-lg shadow-violet-600/40 transition-transform group-hover:scale-105">
+                                {(company?.name ?? 'C').charAt(0)}
+                            </span>
+                        )}
+                        <div className="leading-none">
+                            <span className="block text-lg font-extrabold tracking-tight text-gray-900">
+                                {company?.name ?? 'Company Profile'}
+                            </span>
+                            {company?.tagline && (
+                                <span className="mt-0.5 block text-[11px] font-medium text-gray-400">
+                                    {company.tagline}
+                                </span>
+                            )}
+                        </div>
+                    </a>
+
+                    <div className="hidden items-center gap-1 lg:flex">
+                        {NAV_LINKS.map((link) => (
+                            <a
+                                key={link.href}
+                                href={link.href}
+                                className="rounded-lg px-3.5 py-2 text-sm font-medium text-gray-600 transition-all hover:bg-violet-50 hover:text-violet-700"
+                            >
+                                {link.label}
+                            </a>
+                        ))}
+                    </div>
+
+                    <div className="hidden items-center gap-3 lg:flex">
+                        {user ? (
+                            <Link
+                                href="/dashboard"
+                                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-violet-500/40"
+                            >
+                                Dashboard
+                                <svg
+                                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M13 7l5 5-5 5M6 12h12"
+                                    />
+                                </svg>
+                            </Link>
+                        ) : (
+                            <Link
+                                href="/login"
+                                className="inline-flex items-center gap-2 rounded-xl border border-violet-200 bg-white px-5 py-2.5 text-sm font-semibold text-violet-700 transition-all hover:border-violet-400 hover:bg-violet-50"
+                            >
+                                <svg
+                                    className="h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                                    />
+                                </svg>
+                                Login
+                            </Link>
+                        )}
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => setMobileMenuOpen((open) => !open)}
+                        className="rounded-lg p-2 text-gray-600 transition hover:bg-violet-50 hover:text-violet-700 lg:hidden"
+                        aria-label="Toggle menu"
+                    >
+                        {mobileMenuOpen ? (
+                            <svg
+                                className="h-6 w-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                        ) : (
+                            <svg
+                                className="h-6 w-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M4 6h16M4 12h16M4 18h16"
+                                />
+                            </svg>
+                        )}
+                    </button>
+                </nav>
+
+                {mobileMenuOpen && (
+                    <div className="border-t border-violet-100 bg-white/95 px-4 py-4 backdrop-blur-xl lg:hidden">
+                        <div className="flex flex-col gap-1">
+                            {NAV_LINKS.map((link) => (
+                                <a
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-violet-50 hover:text-violet-700"
+                                >
+                                    {link.label}
+                                </a>
+                            ))}
+                            <div className="mt-3 border-t border-violet-100 pt-3">
+                                {user ? (
+                                    <Link
+                                        href="/dashboard"
+                                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/30"
+                                    >
+                                        Dashboard
+                                    </Link>
+                                ) : (
+                                    <Link
+                                        href="/login"
+                                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-200 px-5 py-3 text-sm font-semibold text-violet-700 transition hover:bg-violet-50"
+                                    >
+                                        Login
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </header>
+
+            {/* Hero */}
+            <section
+                id="hero"
+                className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-white to-fuchsia-50"
+            >
+                {/* Decorative grid + blobs */}
+                <div
+                    className="pointer-events-none absolute inset-0 opacity-[0.5]"
+                    style={{
+                        backgroundImage:
+                            'linear-gradient(to right, rgba(139,92,246,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(139,92,246,0.06) 1px, transparent 1px)',
+                        backgroundSize: '48px 48px',
+                    }}
+                />
+                <div className="pointer-events-none absolute -top-32 -right-32 h-[28rem] w-[28rem] animate-pulse rounded-full bg-violet-300/50 blur-3xl" />
+                <div className="pointer-events-none absolute top-40 -left-32 h-[24rem] w-[24rem] rounded-full bg-fuchsia-300/40 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-32 right-1/3 h-[22rem] w-[22rem] rounded-full bg-indigo-300/40 blur-3xl" />
+
+                <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-28">
+                    <div className="text-center lg:text-left">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white/70 px-4 py-1.5 text-xs font-semibold text-violet-700 shadow-sm backdrop-blur">
+                            <span className="relative flex h-2 w-2">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-500 opacity-75" />
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-600" />
+                            </span>
+                            Selamat datang di {company?.name}
+                        </span>
+
+                        <h1 className="mt-6 text-4xl leading-[1.1] font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+                            <span className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 bg-clip-text text-transparent">
+                                {highlightPart}
+                            </span>
+                            <span className="text-gray-900">{titlePart}</span>
+                        </h1>
+
+                        {heroSubtitle && (
+                            <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-gray-500 lg:mx-0">
+                                {heroSubtitle}
+                            </p>
+                        )}
+
+                        <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
+                            <a
+                                href="#contact"
+                                className="group inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-violet-500/30 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-violet-500/40"
+                            >
+                                Mulai Sekarang
+                                <svg
+                                    className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M17 8l4 4m0 0l-4 4m4-4H3"
+                                    />
+                                </svg>
+                            </a>
+                            <a
+                                href="#services"
+                                className="inline-flex items-center gap-2 rounded-2xl border border-violet-200 bg-white/70 px-8 py-4 text-sm font-semibold text-violet-700 shadow-sm backdrop-blur transition-all hover:-translate-y-1 hover:border-violet-300 hover:bg-violet-50"
+                            >
+                                Lihat Layanan
+                            </a>
+                        </div>
+
+                        {(projects.length > 0 || services.length > 0) && (
+                            <div className="mt-10 flex items-center justify-center gap-8 lg:justify-start">
+                                <div>
+                                    <p className="text-2xl font-extrabold text-gray-900">
+                                        {projects.length}+
+                                    </p>
+                                    <p className="text-xs font-medium text-gray-400">
+                                        Proyek Selesai
+                                    </p>
+                                </div>
+                                <div className="h-10 w-px bg-violet-200" />
+                                <div>
+                                    <p className="text-2xl font-extrabold text-gray-900">
+                                        {services.length}+
+                                    </p>
+                                    <p className="text-xs font-medium text-gray-400">
+                                        Layanan
+                                    </p>
+                                </div>
+                                <div className="h-10 w-px bg-violet-200" />
+                                <div>
+                                    <p className="text-2xl font-extrabold text-gray-900">
+                                        {team.length}+
+                                    </p>
+                                    <p className="text-xs font-medium text-gray-400">
+                                        Tim Profesional
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="relative">
+                        <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-r from-violet-200 via-fuchsia-200 to-indigo-200 opacity-70 blur-2xl" />
+                        <div className="relative rounded-[2rem] border border-white/60 bg-white/60 p-2.5 shadow-2xl shadow-violet-500/30 backdrop-blur-xl">
+                            {heroImage ? (
+                                <img
+                                    src={fileUrl(heroImage)}
+                                    alt={heroTitle ?? 'Hero'}
+                                    className="w-full rounded-[1.6rem] object-cover"
+                                />
+                            ) : (
+                                <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-[1.6rem] bg-gradient-to-br from-violet-600 via-fuchsia-500 to-indigo-600">
+                                    <div
+                                        className="absolute inset-0 opacity-20"
+                                        style={{
+                                            backgroundImage:
+                                                'radial-gradient(circle at 20% 30%, white 0, transparent 30%), radial-gradient(circle at 80% 70%, white 0, transparent 30%)',
+                                        }}
+                                    />
+                                    <div className="relative flex flex-col items-center gap-4 px-10 text-center text-white">
+                                        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/15 text-4xl font-extrabold backdrop-blur">
+                                            {(company?.name ?? 'C').charAt(0)}
+                                        </div>
+                                        <p className="text-xl font-bold">
+                                            {company?.name}
+                                        </p>
+                                        <p className="text-sm text-violet-100">
+                                            {company?.tagline}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="absolute -top-5 -left-5 hidden rounded-2xl border border-white/70 bg-white/80 px-4 py-3 shadow-xl backdrop-blur md:block">
+                            <div className="flex items-center gap-2">
+                                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                                    <svg
+                                        className="h-4 w-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M5 13l4 4L19 7"
+                                        />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <p className="text-xs font-bold text-gray-900">
+                                        {services.filter((s) => s.is_active).length} Layanan
+                                    </p>
+                                    <p className="text-[11px] text-gray-400">
+                                        Selalu aktif
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="absolute -right-5 -bottom-5 hidden rounded-2xl border border-white/70 bg-white/80 px-4 py-3 shadow-xl backdrop-blur md:block">
+                            <div className="flex items-center gap-2">
+                                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                                    <svg
+                                        className="h-4 w-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                        />
+                                    </svg>
+                                </span>
+                                <div>
+                                    <p className="text-xs font-bold text-gray-900">
+                                        {team.length} Anggota Tim
+                                    </p>
+                                    <p className="text-[11px] text-gray-400">
+                                        Siap membantu
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="relative mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-8">
+                    <svg
+                        viewBox="0 0 1200 60"
+                        className="h-12 w-full text-gray-50"
+                        preserveAspectRatio="none"
+                    >
+                        <path
+                            d="M0 60h1200V20c-100 20-250 30-400 20S550 0 600 0s120 40 240 30 240-10 360-15V60z"
+                            fill="currentColor"
+                        />
+                    </svg>
+                </div>
+            </section>
+
+            {/* Clients */}
+            {clients.length > 0 && (
+                <section className="border-b border-gray-100 bg-gray-50 py-14">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <p className="mb-8 text-center text-xs font-bold tracking-[0.2em] text-gray-400 uppercase">
+                            Dipercaya oleh klien kami
+                        </p>
+                        <div className="flex flex-wrap items-center justify-center gap-10">
+                            {clients.map((client) => (
+                                <a
+                                    key={client.id}
+                                    href={client.website_url || undefined}
+                                    target={client.website_url ? '_blank' : undefined}
+                                    rel="noreferrer"
+                                    className="flex h-16 items-center justify-center opacity-50 grayscale transition-all duration-300 hover:scale-105 hover:opacity-100 hover:grayscale-0"
+                                >
+                                    {client.logo ? (
+                                        <img
+                                            src={fileUrl(client.logo)}
+                                            alt={client.name}
+                                            className="max-h-12 max-w-[8rem] object-contain"
+                                        />
+                                    ) : (
+                                        <span className="text-lg font-bold text-gray-400 transition-colors hover:text-violet-600">
+                                            {client.name}
+                                        </span>
+                                    )}
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* About */}
+            {aboutDescription && (
+                <section id="about" className="relative bg-white py-24">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <SectionHeading
+                            eyebrow="About Us"
+                            title={aboutTitle}
+                            subtitle={aboutSubtitle}
+                        />
+
+                        <div className="flex flex-col items-center gap-14 lg:flex-row">
+                            {aboutImage && (
+                                <div className="relative flex-1">
+                                    <div className="absolute -inset-3 rounded-[2rem] bg-gradient-to-r from-violet-200 to-fuchsia-200 opacity-60 blur-xl" />
+                                    <img
+                                        src={fileUrl(aboutImage)}
+                                        alt={aboutTitle}
+                                        className="relative w-full rounded-[2rem] object-cover shadow-2xl"
+                                    />
+                                </div>
+                            )}
+                            <div className="flex-1">
+                                <span className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-4 py-1.5 text-xs font-bold tracking-widest text-violet-700 uppercase">
+                                    Keunggulan Kami
+                                </span>
+                                <p className="mt-6 text-lg leading-relaxed text-gray-600">
+                                    {aboutDescription}
+                                </p>
+
+                                <div className="mt-8 grid gap-5 sm:grid-cols-2">
+                                    <div className="group rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-violet-50 p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-violet-200 hover:shadow-xl">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white shadow-lg shadow-violet-500/30 transition-transform group-hover:scale-110">
+                                            <svg
+                                                className="h-5 w-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <h3 className="mt-4 font-bold text-gray-900">
+                                            Misi
+                                        </h3>
+                                        <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                                            {company?.mission ||
+                                                'Memberikan solusi terbaik untuk kebutuhan bisnis Anda.'}
+                                        </p>
+                                    </div>
+                                    <div className="group rounded-2xl border border-gray-100 bg-gradient-to-br from-white to-indigo-50 p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-500 text-white shadow-lg shadow-indigo-500/30 transition-transform group-hover:scale-110">
+                                            <svg
+                                                className="h-5 w-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                />
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <h3 className="mt-4 font-bold text-gray-900">
+                                            Visi
+                                        </h3>
+                                        <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                                            {company?.vision ||
+                                                'Menjadi perusahaan terpercaya dalam bidang kami.'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Services */}
+            {services.length > 0 && (
+                <section
+                    id="services"
+                    className="relative overflow-hidden bg-gray-950 py-24 text-white"
+                >
+                    <div className="pointer-events-none absolute -top-24 left-1/4 h-80 w-80 rounded-full bg-violet-600/30 blur-3xl" />
+                    <div className="pointer-events-none absolute -bottom-24 right-1/4 h-80 w-80 rounded-full bg-fuchsia-600/30 blur-3xl" />
+
+                    <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="mx-auto mb-16 max-w-2xl text-center">
+                            <span className="inline-flex items-center gap-2 rounded-full border border-violet-700/60 bg-violet-500/10 px-4 py-1.5 text-xs font-bold tracking-widest text-violet-300 uppercase">
+                                <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-violet-400 to-fuchsia-400" />
+                                Our Services
+                            </span>
+                            <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                                Layanan Kami
+                            </h2>
+                            <p className="mt-5 text-lg leading-relaxed text-gray-400">
+                                Solusi lengkap yang kami tawarkan untuk membantu
+                                bisnis Anda berkembang.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {services.map((service, index) => (
+                                <div
+                                    key={service.id}
+                                    className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur transition-all hover:-translate-y-2 hover:border-violet-400/40 hover:bg-white/10 hover:shadow-2xl hover:shadow-violet-600/20"
+                                >
+                                    <span className="absolute top-5 right-6 text-4xl font-black text-white/5 transition-colors group-hover:text-white/10">
+                                        0{index + 1}
+                                    </span>
+                                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-xl text-white shadow-lg shadow-violet-500/40 transition-transform group-hover:scale-110 group-hover:rotate-3">
+                                        {service.icon ?? '✦'}
+                                    </div>
+                                    <h3 className="mt-5 text-lg font-bold text-white">
+                                        {service.title}
+                                    </h3>
+                                    <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                                        {service.description}
+                                    </p>
+                                    <div className="mt-5 h-0.5 w-0 bg-gradient-to-r from-violet-400 to-fuchsia-400 transition-all duration-500 group-hover:w-full" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Projects */}
+            {showProjects.length > 0 && (
+                <section id="projects" className="bg-gray-50 py-24">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <SectionHeading
+                            eyebrow="Our Work"
+                            title="Proyek Kami"
+                            subtitle="Beberapa proyek terbaik yang telah kami kerjakan."
+                        />
+
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {showProjects.slice(0, 6).map((project) => (
+                                <a
+                                    key={project.id}
+                                    href={project.project_url || '#projects'}
+                                    target={project.project_url ? '_blank' : undefined}
+                                    rel="noreferrer"
+                                    className="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-2xl hover:shadow-violet-500/20"
+                                >
+                                    <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-violet-100 to-fuchsia-100">
+                                        {project.image ? (
+                                            <img
+                                                src={fileUrl(project.image)}
+                                                alt={project.title}
+                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                            />
+                                        ) : (
+                                            <div className="flex h-full items-center justify-center">
+                                                <span className="text-5xl text-white/80">✦</span>
+                                            </div>
+                                        )}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                                        {project.is_featured && (
+                                            <span className="absolute top-4 right-4 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-3 py-1 text-xs font-bold text-white shadow-lg">
+                                                ★ Featured
+                                            </span>
+                                        )}
+                                        <span className="absolute bottom-4 left-4 rounded-lg bg-white/95 px-3 py-1 text-xs font-semibold text-violet-700 opacity-0 shadow-lg backdrop-blur transition-all group-hover:opacity-100">
+                                            {project.category || 'Proyek'}
+                                        </span>
+                                    </div>
+                                    <div className="p-6">
+                                        <h3 className="text-lg font-bold text-gray-900 transition-colors group-hover:text-violet-600">
+                                            {project.title}
+                                        </h3>
+                                        {project.client && (
+                                            <p className="mt-1 text-sm text-gray-400">
+                                                {project.client}
+                                            </p>
+                                        )}
+                                        {project.description && (
+                                            <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-gray-500">
+                                                {project.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* CTA */}
+            <section className="relative overflow-hidden bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 py-20">
+                <div
+                    className="pointer-events-none absolute inset-0 opacity-30"
+                    style={{
+                        backgroundImage:
+                            'radial-gradient(circle at 20% 20%, white 0, transparent 25%), radial-gradient(circle at 80% 80%, white 0, transparent 25%)',
+                    }}
+                />
+                <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-4 text-center sm:px-6 lg:flex-row lg:px-8 lg:text-left">
+                    <div className="max-w-2xl">
+                        <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                            {ctaTitle}
+                        </h2>
+                        <p className="mt-3 text-lg text-violet-100">
+                            {ctaSubtitle}
+                        </p>
+                    </div>
+                    <a
+                        href="#contact"
+                        className="group inline-flex shrink-0 items-center gap-2 rounded-2xl bg-white px-8 py-4 text-sm font-bold text-violet-700 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
+                    >
+                        Mulai Sekarang
+                        <svg
+                            className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3"
+                            />
+                        </svg>
+                    </a>
+                </div>
+            </section>
+
+            {/* Team */}
+            {team.length > 0 && (
+                <section id="team" className="bg-white py-24">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <SectionHeading
+                            eyebrow="Our Team"
+                            title="Tim Kami"
+                            subtitle="Orang-orang hebat di balik setiap kesuksesan."
+                        />
+
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            {team.slice(0, 8).map((member) => (
+                                <div
+                                    key={member.id}
+                                    className="group relative overflow-hidden rounded-3xl border border-gray-100 bg-gradient-to-b from-white to-gray-50 p-6 text-center shadow-sm transition-all hover:-translate-y-2 hover:shadow-2xl hover:shadow-violet-500/20"
+                                >
+                                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-r from-violet-100 via-fuchsia-100 to-indigo-100" />
+                                    <div className="relative mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-white ring-4 ring-white shadow-xl">
+                                        {member.photo ? (
+                                            <img
+                                                src={fileUrl(member.photo)}
+                                                alt={member.name}
+                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                            />
+                                        ) : (
+                                            <span className="bg-gradient-to-br from-violet-600 to-fuchsia-500 bg-clip-text text-3xl font-extrabold text-transparent">
+                                                {(member.name ?? 'T').charAt(0)}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="relative mt-5">
+                                        <h3 className="font-bold text-gray-900">
+                                            {member.name}
+                                        </h3>
+                                        <p className="mt-1 text-sm font-medium text-violet-600">
+                                            {member.position}
+                                        </p>
+                                        {(member.email || member.linkedin_url) && (
+                                            <div className="mt-4 flex items-center justify-center gap-2">
+                                                {member.email && (
+                                                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500 transition hover:bg-violet-100 hover:text-violet-600">
+                                                        <svg
+                                                            className="h-3.5 w-3.5"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth="2"
+                                                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                                            />
+                                                        </svg>
+                                                    </span>
+                                                )}
+                                                {member.linkedin_url && (
+                                                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500 transition hover:bg-violet-100 hover:text-violet-600">
+                                                        <span className="text-[10px] font-black">
+                                                            in
+                                                        </span>
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Testimonials */}
+            {testimonials.length > 0 && (
+                <section
+                    id="testimonials"
+                    className="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white py-24"
+                >
+                    <div className="pointer-events-none absolute -top-20 right-0 h-80 w-80 rounded-full bg-violet-200/50 blur-3xl" />
+                    <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <SectionHeading
+                            eyebrow="Testimonials"
+                            title="Apa Kata Mereka"
+                            subtitle="Kepuasan klien adalah prioritas utama kami."
+                        />
+
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            {testimonials.map((testimonial) => (
+                                <div
+                                    key={testimonial.id}
+                                    className="relative flex flex-col rounded-3xl border border-gray-100 bg-white p-8 shadow-sm transition-all hover:-translate-y-2 hover:shadow-2xl hover:shadow-violet-500/20"
+                                >
+                                    <span className="absolute top-6 right-8 font-serif text-6xl leading-none text-violet-200">
+                                        "
+                                    </span>
+                                    <Stars rating={testimonial.rating} />
+                                    <p className="mt-4 flex-1 leading-relaxed text-gray-600">
+                                        {testimonial.content}
+                                    </p>
+                                    <div className="mt-6 flex items-center gap-3 border-t border-gray-100 pt-5">
+                                        <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500">
+                                            {testimonial.photo ? (
+                                                <img
+                                                    src={fileUrl(
+                                                        testimonial.photo,
+                                                    )}
+                                                    alt={testimonial.name}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            ) : (
+                                                <span className="font-bold text-white">
+                                                    {(
+                                                        testimonial.name ?? 'T'
+                                                    ).charAt(0)}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-900">
+                                                {testimonial.name}
+                                            </p>
+                                            <p className="text-xs text-gray-400">
+                                                {[
+                                                    testimonial.position,
+                                                    testimonial.company,
+                                                ]
+                                                    .filter(Boolean)
+                                                    .join(' · ') || 'Client'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Blog */}
+            {posts.length > 0 && (
+                <section id="blog" className="bg-white py-24">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <SectionHeading
+                            eyebrow="Blog"
+                            title="Artikel Terbaru"
+                            subtitle="Berita, tips, dan wawasan dari tim kami."
+                        />
+
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            {posts.slice(0, 3).map((post) => (
+                                <a
+                                    key={post.id}
+                                    href="#blog"
+                                    className="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-2xl hover:shadow-violet-500/20"
+                                >
+                                    <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-violet-100 to-fuchsia-100">
+                                        {post.cover_image ? (
+                                            <img
+                                                src={fileUrl(post.cover_image)}
+                                                alt={post.title}
+                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                            />
+                                        ) : (
+                                            <div className="flex h-full items-center justify-center text-5xl text-white/80">
+                                                ✎
+                                            </div>
+                                        )}
+                                        <span className="absolute top-4 left-4 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-500 px-3 py-1 text-xs font-semibold text-white shadow-lg">
+                                            {post.category || 'Artikel'}
+                                        </span>
+                                    </div>
+                                    <div className="p-6">
+                                        <span className="text-xs font-medium text-gray-400">
+                                            {formatDate(post.published_at)}
+                                        </span>
+                                        <h3 className="mt-2 text-lg font-bold text-gray-900 transition-colors group-hover:text-violet-600">
+                                            {post.title}
+                                        </h3>
+                                        {post.excerpt && (
+                                            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-500">
+                                                {post.excerpt}
+                                            </p>
+                                        )}
+                                        <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-violet-600">
+                                            Baca Selengkapnya
+                                            <svg
+                                                className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M13 7l5 5-5 5M6 12h12"
+                                                />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Contact */}
+            <section
+                id="contact"
+                className="relative overflow-hidden bg-gradient-to-b from-violet-50 via-white to-white py-24"
+            >
+                <div className="pointer-events-none absolute -top-20 -left-20 h-80 w-80 rounded-full bg-fuchsia-200/50 blur-3xl" />
+                <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <SectionHeading
+                        eyebrow="Contact"
+                        title="Hubungi Kami"
+                        subtitle="Ada pertanyaan atau siap memulai? Kirimkan pesan Anda."
+                    />
+
+                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
+                        <div className="space-y-5 lg:col-span-2">
+                            {company?.address && (
+                                <div className="group flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-violet-200 hover:shadow-xl">
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/30">
+                                        <svg
+                                            className="h-5 w-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                            />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-900">
+                                            Alamat
+                                        </p>
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            {company.address}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {company?.phone && (
+                                <div className="group flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-violet-200 hover:shadow-xl">
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-lg shadow-indigo-500/30">
+                                        <svg
+                                            className="h-5 w-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-900">
+                                            Telepon
+                                        </p>
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            {company.phone}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {company?.email && (
+                                <div className="group flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-violet-200 hover:shadow-xl">
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30">
+                                        <svg
+                                            className="h-5 w-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-900">
+                                            Email
+                                        </p>
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            {company.email}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="flex gap-3 pt-2">
+                                {SOCIAL_LINKS.map((social) =>
+                                    company?.[social.key] ? (
+                                        <a
+                                            key={social.key}
+                                            href={company[social.key] ?? '#'}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="flex h-11 w-11 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 shadow-sm transition-all hover:-translate-y-1 hover:border-violet-400 hover:bg-gradient-to-br hover:from-violet-600 hover:to-fuchsia-500 hover:text-white hover:shadow-lg hover:shadow-violet-500/30"
+                                            aria-label={social.label}
+                                        >
+                                            <span className="text-sm font-black">
+                                                {social.label.charAt(0)}
+                                            </span>
+                                        </a>
+                                    ) : null,
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="rounded-3xl border border-violet-100 bg-white p-8 shadow-2xl shadow-violet-500/10 lg:col-span-3">
+                            {contactSuccess && (
+                                <div className="mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3.5 text-sm font-medium text-emerald-700">
+                                    <svg
+                                        className="h-5 w-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M5 13l4 4L19 7"
+                                        />
+                                    </svg>
+                                    Pesan berhasil dikirim. Kami akan segera
+                                    menghubungi Anda.
+                                </div>
+                            )}
+
+                            {contactError && (
+                                <div className="mb-6 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm font-medium text-red-600">
+                                    <svg
+                                        className="h-5 w-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        />
+                                    </svg>
+                                    {contactError}
+                                </div>
+                            )}
+
+                            <form
+                                onSubmit={handleContactSubmit}
+                                className="space-y-5"
+                            >
+                                <div className="grid gap-5 sm:grid-cols-2">
+                                    <div>
+                                        <label
+                                            htmlFor="contact-name"
+                                            className="mb-2 block text-sm font-medium text-gray-700"
+                                        >
+                                            Nama
+                                        </label>
+                                        <input
+                                            id="contact-name"
+                                            type="text"
+                                            value={contactName}
+                                            onChange={(e) =>
+                                                setContactName(e.target.value)
+                                            }
+                                            placeholder="Nama lengkap"
+                                            className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-sm text-gray-900 transition outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label
+                                            htmlFor="contact-email"
+                                            className="mb-2 block text-sm font-medium text-gray-700"
+                                        >
+                                            Email
+                                        </label>
+                                        <input
+                                            id="contact-email"
+                                            type="email"
+                                            value={contactEmail}
+                                            onChange={(e) =>
+                                                setContactEmail(e.target.value)
+                                            }
+                                            placeholder="email@contoh.com"
+                                            className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-sm text-gray-900 transition outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label
+                                        htmlFor="contact-subject"
+                                        className="mb-2 block text-sm font-medium text-gray-700"
+                                    >
+                                        Subjek
+                                    </label>
+                                    <input
+                                        id="contact-subject"
+                                        type="text"
+                                        value={contactSubject}
+                                        onChange={(e) =>
+                                            setContactSubject(e.target.value)
+                                        }
+                                        placeholder="Subjek pesan"
+                                        className="w-full rounded-xl border border-gray-200 px-4 py-3.5 text-sm text-gray-900 transition outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label
+                                        htmlFor="contact-message"
+                                        className="mb-2 block text-sm font-medium text-gray-700"
+                                    >
+                                        Pesan
+                                    </label>
+                                    <textarea
+                                        id="contact-message"
+                                        value={contactMessage}
+                                        onChange={(e) =>
+                                            setContactMessage(e.target.value)
+                                        }
+                                        rows={5}
+                                        placeholder="Tulis pesan Anda di sini..."
+                                        className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3.5 text-sm text-gray-900 transition outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+                                        required
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={sending}
+                                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-500 to-indigo-600 px-6 py-4 text-sm font-bold text-white shadow-xl shadow-violet-500/30 transition-all hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-violet-500/40 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                                >
+                                    {sending ? (
+                                        <>
+                                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                                            Mengirim...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Kirim Pesan
+                                            <svg
+                                                className="h-4 w-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                                                />
+                                            </svg>
+                                        </>
+                                    )}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="relative overflow-hidden bg-gray-950 text-gray-400">
+                <div className="pointer-events-none absolute -top-24 left-1/3 h-72 w-72 rounded-full bg-violet-600/20 blur-3xl" />
+                <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
+                        <div className="md:col-span-2">
+                            <div className="flex items-center gap-3">
+                                {company?.logo ? (
+                                    <img
+                                        src={fileUrl(company.logo)}
+                                        alt={company.name ?? ''}
+                                        className="h-10 w-10 rounded-xl bg-white/10 object-cover"
+                                    />
+                                ) : (
+                                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 via-fuchsia-500 to-indigo-600 text-lg font-bold text-white">
+                                        {(company?.name ?? 'C').charAt(0)}
+                                    </span>
+                                )}
+                                <span className="text-lg font-extrabold text-white">
+                                    {company?.name ?? 'Company Profile'}
+                                </span>
+                            </div>
+                            <p className="mt-5 max-w-md text-sm leading-relaxed">
+                                {company?.about ||
+                                    company?.tagline ||
+                                    'Solusi terbaik untuk kebutuhan bisnis Anda.'}
+                            </p>
+                            <div className="mt-6 flex gap-3">
+                                {SOCIAL_LINKS.map((social) =>
+                                    company?.[social.key] ? (
+                                        <a
+                                            key={social.key}
+                                            href={company[social.key] ?? '#'}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-gray-400 transition-all hover:-translate-y-0.5 hover:bg-gradient-to-br hover:from-violet-600 hover:to-fuchsia-500 hover:text-white"
+                                            aria-label={social.label}
+                                        >
+                                            <span className="text-xs font-black">
+                                                {social.label.charAt(0)}
+                                            </span>
+                                        </a>
+                                    ) : null,
+                                )}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 className="text-sm font-bold tracking-wider text-white uppercase">
+                                Navigasi
+                            </h4>
+                            <ul className="mt-5 space-y-3 text-sm">
+                                {NAV_LINKS.map((link) => (
+                                    <li key={link.href}>
+                                        <a
+                                            href={link.href}
+                                            className="inline-flex items-center gap-2 transition-colors hover:text-violet-400"
+                                        >
+                                            <span className="h-1 w-1 rounded-full bg-white/20" />
+                                            {link.label}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 className="text-sm font-bold tracking-wider text-white uppercase">
+                                Kontak
+                            </h4>
+                            <ul className="mt-5 space-y-3 text-sm">
+                                {company?.email && <li>{company.email}</li>}
+                                {company?.phone && <li>{company.phone}</li>}
+                                {company?.address && <li>{company.address}</li>}
+                                {company?.website_url && (
+                                    <li>
+                                        <a
+                                            href={company.website_url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="transition-colors hover:text-violet-400"
+                                        >
+                                            {company.website_url.replace(
+                                                /^https?:\/\//,
+                                                '',
+                                            )}
+                                        </a>
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-sm sm:flex-row">
+                        <p>
+                            © {new Date().getFullYear()} {company?.name}. Hak
+                            cipta dilindungi.
+                        </p>
+                        <p className="text-gray-500">
+                            Dibuat dengan{' '}
+                            <span className="text-fuchsia-500">♥</span> oleh{' '}
+                            {company?.name ?? 'kami'}
+                        </p>
+                        {user && (
+                            <Link
+                                href="/dashboard"
+                                className="font-medium text-violet-400 transition-colors hover:text-violet-300"
+                            >
+                                Login ke Dashboard →
+                            </Link>
+                        )}
+                    </div>
+                </div>
+            </footer>
+        </div>
     );
+}
+
+function splitHighlight(text: string): [string, string] {
+    const words = text.split(' ');
+    const half = Math.ceil(words.length / 2);
+
+    return [words.slice(half).join(' '), words.slice(0, half).join(' ')];
 }
